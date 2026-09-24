@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { AppShell } from "@/components/shell/app-shell";
 import { POSICOES, rotulo } from "@/lib/catalogos";
 import { atendimentosEntre, hoje, listarAtletas, listarLesoes, mapaAtletas, statusHoje } from "@/lib/consultas";
-import { diferencaDias, fmtDiaMes, somarDias } from "@/lib/dominio/datas";
+import { diferencaDias, fmtDiaExtenso, fmtDiaMes, somarDias } from "@/lib/dominio/datas";
 import { diaRetorno, lesaoAfasta } from "@/lib/dominio/status";
 import { COOKIE_TEMA, permissoes, usuarioAtual } from "@/lib/sessao";
 
@@ -23,6 +23,34 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
     afastados: atletas.filter((a) => status.get(a.id) === "afastado").length,
   };
   const amanha = somarDias(h, 1);
+
+  // Lateral: quem está afastado agora (lesão que mais afasta de cada um) e o resumo de hoje.
+  const afastados = atletas
+    .filter((a) => status.get(a.id) === "afastado")
+    .map((a) => {
+      const ativas = lesoes.filter((l) => l.atletaId === a.id && lesaoAfasta(l, h));
+      const aberta = ativas.find((l) => l.diasAfastamento == null);
+      const principal = aberta ?? ativas.sort((x, y) => ((diaRetorno(y) ?? "") > (diaRetorno(x) ?? "") ? 1 : -1))[0];
+      const retorno = principal ? diaRetorno(principal) : null;
+      const dias = principal ? diferencaDias(principal.dia, h) : 0;
+      return {
+        id: a.id,
+        nome: a.nome,
+        apelido: a.apelido,
+        foto: a.foto ? `/api/arquivos/${a.foto}` : null,
+        detalhe: retorno ? (retorno === amanha ? "volta amanhã" : `volta ${fmtDiaMes(retorno)}`) : `há ${dias} ${dias === 1 ? "dia" : "dias"}`,
+        urgente: retorno == null && dias > 14,
+        ordem: retorno ?? "9999",
+      };
+    })
+    .sort((x, y) => (x.ordem < y.ordem ? -1 : 1))
+    .map(({ ordem: _, ...resto }) => resto); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const resumoHoje = {
+    matutino: deHoje.filter((a) => a.periodo === "matutino").length,
+    vespertino: deHoje.filter((a) => a.periodo === "vespertino").length,
+    atletas: new Set(deHoje.map((a) => a.atletaId)).size,
+    dataExtenso: fmtDiaExtenso(h),
+  };
 
   // Notificações: retornos previstos para hoje e amanhã; lesões em aberto há mais de 14 dias.
   const notificacoes = lesoes.flatMap((l) => {
@@ -45,6 +73,8 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
       atletas={atletas.map((a) => ({ id: a.id, nome: a.nome, apelido: a.apelido, camisa: a.camisa, posicao: rotulo(POSICOES, a.posicao), foto: a.foto ? `/api/arquivos/${a.foto}` : null }))}
       notificacoes={notificacoes}
       contagens={contagens}
+      afastados={afastados}
+      resumoHoje={resumoHoje}
       tema={jar.get(COOKIE_TEMA)?.value === "escuro" ? "escuro" : "claro"}
     >
       {children}
