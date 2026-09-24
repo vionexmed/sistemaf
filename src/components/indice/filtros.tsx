@@ -38,7 +38,7 @@ export function Visoes({ opcoes, chave = "visao", padrao }: { opcoes: readonly O
   const url = useUrlComParametros();
   const atual = params.get(chave) ?? padrao;
   return (
-    <div role="tablist" className="flex gap-1 border-b">
+    <div role="tablist" className="flex flex-wrap gap-1">
       {opcoes.map((o) => {
         const ativo = o.valor === atual;
         return (
@@ -49,8 +49,8 @@ export function Visoes({ opcoes, chave = "visao", padrao }: { opcoes: readonly O
             href={url({ [chave]: o.valor === padrao ? null : o.valor })}
             scroll={false}
             className={cn(
-              "-mb-px flex h-9 items-center border-b-2 border-transparent px-2 text-base text-muted-foreground transition-colors duration-150 hover:text-foreground",
-              ativo && "border-primary font-medium text-foreground",
+              "flex h-8 items-center rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-hover hover:text-foreground",
+              ativo && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
             )}
           >
             {o.rotulo}
@@ -95,7 +95,7 @@ export function BarraDeFiltros({
   const ativos = chips.length;
 
   return (
-    <div className="flex flex-col gap-2 py-3">
+    <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative w-full max-w-64">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -113,7 +113,7 @@ export function BarraDeFiltros({
             <PopoverTrigger asChild>
               <Button variant="secondary">
                 <ListFilter /> Filtros
-                {ativos > 0 && <span className="rounded-sm bg-selected px-1 text-xs text-acento-11 tabular">{ativos}</span>}
+                {ativos > 0 && <span className="flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground tabular">{ativos}</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="max-h-96 w-80 overflow-y-auto">
@@ -145,7 +145,7 @@ export function BarraDeFiltros({
               key={`${c.chave}-${c.valor}`}
               type="button"
               onClick={() => alternar(c.chave, c.valor)}
-              className="inline-flex h-7 items-center gap-1 rounded-sm border bg-surface px-2 text-sm hover:bg-hover"
+              className="inline-flex h-7 items-center gap-1 rounded-full bg-hover px-3 text-sm hover:bg-pressed"
               aria-label={`Remover filtro ${c.rotulo}`}
             >
               {c.rotulo} <X className="size-3" />

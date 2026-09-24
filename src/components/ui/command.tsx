@@ -11,7 +11,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof C>) {
 
 function CommandInput({ className, ...props }: React.ComponentProps<typeof C.Input>) {
   return (
-    <div className="flex h-11 items-center gap-2 border-b px-3">
+    <div className="flex h-12 items-center gap-2 border-b px-4">
       <Search className="size-4 shrink-0 text-muted-foreground" />
       <C.Input
         className={cn("h-full w-full bg-transparent text-base outline-none placeholder:text-muted-foreground", className)}
@@ -45,7 +45,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof C.Item
   return (
     <C.Item
       className={cn(
-        "relative flex h-9 cursor-default items-center gap-2 rounded-sm px-2 text-base outline-none select-none data-[selected=true]:bg-hover data-[disabled=true]:opacity-50 [&_svg]:size-4 [&_svg]:stroke-[1.75] [&_svg]:text-muted-foreground",
+        "relative flex h-9 cursor-default items-center gap-2 rounded-md px-2 text-base outline-none select-none data-[selected=true]:bg-hover data-[disabled=true]:opacity-50 [&_svg]:size-4 [&_svg]:stroke-[1.75] [&_svg]:text-muted-foreground",
         className,
       )}
       {...props}

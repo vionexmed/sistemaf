@@ -9,7 +9,7 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof P.Root>) 
   return (
     <P.Root
       className={cn(
-        "peer flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-surface data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
+        "peer flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input bg-surface data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
         className,
       )}
       {...props}

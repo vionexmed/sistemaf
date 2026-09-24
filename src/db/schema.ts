@@ -24,8 +24,8 @@ export const usuarios = pgTable("usuarios", {
 export const atletas = pgTable("atletas", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
-  apelido: text("apelido").notNull(), // nome na camisa
-  camisa: integer("camisa").notNull(),
+  apelido: text("apelido").notNull(), // como o jogador é chamado
+  camisa: integer("camisa"), // opcional: não identifica nem ordena nada
   posicao: text("posicao").notNull(), // Posicao
   nascimento: date("nascimento").notNull(),
   alturaCm: integer("altura_cm"),

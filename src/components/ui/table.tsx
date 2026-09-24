@@ -11,7 +11,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
-  return <thead className={cn("sticky top-0 z-10 bg-subtle", className)} {...props} />;
+  return <thead className={cn("sticky top-0 z-10 bg-surface", className)} {...props} />;
 }
 
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
@@ -19,14 +19,14 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
-  return <tr className={cn("h-11 border-b transition-colors duration-150 data-[selecionada=true]:bg-selected", className)} {...props} />;
+  return <tr className={cn("h-11 border-b transition-colors duration-150", className)} {...props} />;
 }
 
 function TableHead({ className, numero, ...props }: React.ComponentProps<"th"> & { numero?: boolean }) {
   return (
     <th
       className={cn(
-        "h-9 border-b px-3 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground",
+        "h-9 border-b px-4 text-left align-middle text-xs font-medium whitespace-nowrap text-faint-foreground",
         numero && "text-right",
         className,
       )}
@@ -38,7 +38,7 @@ function TableHead({ className, numero, ...props }: React.ComponentProps<"th"> &
 function TableCell({ className, numero, ...props }: React.ComponentProps<"td"> & { numero?: boolean }) {
   return (
     <td
-      className={cn("max-w-64 truncate px-3 align-middle whitespace-nowrap", numero && "tabular text-right", className)}
+      className={cn("max-w-64 truncate px-4 align-middle whitespace-nowrap", numero && "tabular text-right", className)}
       {...props}
     />
   );

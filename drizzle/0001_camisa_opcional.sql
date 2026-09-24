@@ -1,0 +1,1 @@
+ALTER TABLE "atletas" ALTER COLUMN "camisa" DROP NOT NULL;

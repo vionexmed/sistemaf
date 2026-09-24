@@ -102,7 +102,7 @@ export function RegistroCelular({
                 type="button"
                 onClick={() => escolher(a.id)}
                 aria-pressed={v.atletaId === a.id}
-                className={cn("flex flex-col items-center gap-1 rounded-md border p-2 text-center", v.atletaId === a.id ? "border-selected-border bg-selected" : "bg-surface")}
+                className={cn("flex flex-col items-center gap-1 rounded-lg p-2 text-center", v.atletaId === a.id ? "bg-primary text-primary-foreground" : "bg-surface shadow-ativo")}
               >
                 <Avatar nome={a.nome} foto={a.foto} tamanho={40} />
                 <span className="w-full truncate text-xs font-medium">{a.apelido}</span>

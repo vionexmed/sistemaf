@@ -1,20 +1,27 @@
 import { cookies } from "next/headers";
 import { AppShell } from "@/components/shell/app-shell";
 import { POSICOES, rotulo } from "@/lib/catalogos";
-import { hoje, listarAtletas, listarLesoes, mapaAtletas } from "@/lib/consultas";
+import { atendimentosEntre, hoje, listarAtletas, listarLesoes, mapaAtletas, statusHoje } from "@/lib/consultas";
 import { diferencaDias, fmtDiaMes, somarDias } from "@/lib/dominio/datas";
 import { diaRetorno, lesaoAfasta } from "@/lib/dominio/status";
 import { COOKIE_TEMA, permissoes, usuarioAtual } from "@/lib/sessao";
 
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
-  const [usuario, atletas, lesoes, porId, jar] = await Promise.all([
+  const h = hoje();
+  const [usuario, atletas, lesoes, porId, jar, deHoje, status] = await Promise.all([
     usuarioAtual(),
     listarAtletas(),
     listarLesoes(),
     mapaAtletas(),
     cookies(),
+    atendimentosEntre(h, h),
+    statusHoje(),
   ]);
-  const h = hoje();
+  const contagens = {
+    atendimentosHoje: deHoje.length,
+    lesoesAbertas: lesoes.filter((l) => l.diasAfastamento == null && porId.get(l.atletaId)?.ativo).length,
+    afastados: atletas.filter((a) => status.get(a.id) === "afastado").length,
+  };
   const amanha = somarDias(h, 1);
 
   // Notificações: retornos previstos para hoje e amanhã; lesões em aberto há mais de 14 dias.
@@ -37,6 +44,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
       podeEditar={permissoes(usuario.perfil).editar}
       atletas={atletas.map((a) => ({ id: a.id, nome: a.nome, apelido: a.apelido, camisa: a.camisa, posicao: rotulo(POSICOES, a.posicao), foto: a.foto ? `/api/arquivos/${a.foto}` : null }))}
       notificacoes={notificacoes}
+      contagens={contagens}
       tema={jar.get(COOKIE_TEMA)?.value === "escuro" ? "escuro" : "claro"}
     >
       {children}

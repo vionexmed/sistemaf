@@ -143,7 +143,7 @@ export function FormularioLesao({
               </div>
             </div>
             {v.regiao && v.lado && (
-              <p className="rounded-md bg-selected px-3 py-2 text-sm text-acento-11">
+              <p className="rounded-md bg-info-3 px-3 py-2 text-sm text-info-11">
                 {v.tipo ? `${rotulo(TIPOS_LESAO, v.tipo)} · ` : ""}
                 {rotulo(REGIOES, v.regiao).toLowerCase()} {nomeLado(v.lado)} · aparece no mapa de queixas da ficha
               </p>
@@ -179,7 +179,7 @@ export function FormularioLesao({
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-0 -mx-4 flex items-center justify-end gap-2 border-t bg-background px-4 py-3 md:-mx-6 md:px-6">
+        <div className="sticky bottom-0 -mx-4 flex items-center justify-end gap-2 border-t bg-surface px-4 py-3 md:-mx-8 md:px-8">
           <Button variant="ghost" asChild>
             <Link href={v.atletaId ? `/jogadores/${v.atletaId}?aba=lesoes` : "/lesoes"}>Cancelar</Link>
           </Button>

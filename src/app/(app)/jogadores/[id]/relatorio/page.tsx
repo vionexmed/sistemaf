@@ -85,7 +85,7 @@ export default async function Relatorio({ params, searchParams }: { params: Prom
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-semibold">{atleta.nome}</h1>
-              <span className="text-xl text-muted-foreground tabular">#{atleta.camisa}</span>
+              {atleta.camisa != null && <span className="text-xl text-muted-foreground tabular">#{atleta.camisa}</span>}
               <StatusBadge status={statusAtleta} />
             </div>
             <p className="text-sm text-muted-foreground">{detalhes.join(" · ")}</p>

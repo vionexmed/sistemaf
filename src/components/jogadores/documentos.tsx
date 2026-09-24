@@ -50,7 +50,7 @@ export function Documentos({ atletaId, documentos, podeEditar }: { atletaId: num
               type="button"
               onClick={() => setPasta(ativo ? null : t.valor)}
               aria-pressed={ativo}
-              className={cn("flex items-center gap-3 rounded-md border bg-surface p-4 text-left hover:bg-hover", ativo && "border-selected-border bg-selected hover:bg-selected")}
+              className={cn("flex items-center gap-3 rounded-lg bg-surface p-4 text-left shadow-card hover:bg-subtle", ativo && "shadow-[0_0_0_1.5px_var(--gray-12)]")}
             >
               <Folder className="size-5 text-muted-foreground" strokeWidth={1.75} />
               <span className="min-w-0">
@@ -139,7 +139,7 @@ export function Documentos({ atletaId, documentos, podeEditar }: { atletaId: num
                     formRef.current?.requestSubmit();
                   }
                 }}
-                className={cn("flex cursor-pointer flex-col items-center gap-2 rounded-md border border-dashed border-input px-4 py-8 text-center hover:bg-hover", arrastando && "border-selected-border bg-selected")}
+                className={cn("flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-input px-4 py-8 text-center hover:bg-hover", arrastando && "border-[var(--blue-8)] bg-info-3")}
               >
                 <Upload className="size-6 text-muted-foreground" strokeWidth={1.75} />
                 <span className="font-medium">{enviando ? "Enviando…" : "Arraste o arquivo aqui ou clique para escolher"}</span>

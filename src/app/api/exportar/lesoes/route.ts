@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   const busca = normalizar(p.get("q") ?? "");
   const filtradas = filtrarLesoes(lesoes, visao, { campeonato: lista("campeonato"), periodo: lista("periodo"), tipo: lista("tipo"), regiao: lista("regiao") }).filter((l) => {
     const a = atletas.get(l.atletaId);
-    return !busca || (a != null && normalizar(`${a.nome} ${a.apelido} ${a.camisa}`).includes(busca));
+    return !busca || (a != null && normalizar(`${a.nome} ${a.apelido} ${a.camisa ?? ""}`).includes(busca));
   });
   const cabecalho = ["Dia", "Camisa", "Atleta", "Posição", "Lesão", ...(verSaude ? ["Estrutura"] : []), "Local", "Reincidência", "Afastamento (dias)", "Retorno", "Dias perdidos até hoje", "Campeonato", "Período", ...(verSaude ? ["Observação"] : [])];
   const linhas = filtradas.map((l) => {

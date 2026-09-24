@@ -2,11 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { ROTULO_STATUS, type StatusAtleta } from "@/lib/dominio/status";
 
 // Status sempre igual em todo o sistema: badge com ponto, mesmas 4 cores.
-const TOM: Record<StatusAtleta, "erro" | "info" | "aviso" | "ok"> = {
+const TOM: Record<StatusAtleta, "erro" | "info" | "aviso" | "neutro"> = {
   afastado: "erro",
   em_tratamento: "info",
   queixa_pos_treino: "aviso",
-  liberado: "ok",
+  liberado: "neutro",
 };
 
 export function StatusBadge({ status }: { status: string }) {

@@ -24,7 +24,7 @@ export default async function PaginaJogadores({ searchParams }: { searchParams: 
   const h = hoje();
   const visao = umDe(p, "visao", VISOES.map((v) => v.valor), "todos");
   const busca = normalizar(texto(p, "q") ?? "");
-  const ordem = texto(p, "ordem") ?? "camisa";
+  const ordem = texto(p, "ordem") ?? "nome";
 
   const base =
     visao === "inativos"
@@ -32,7 +32,7 @@ export default async function PaginaJogadores({ searchParams }: { searchParams: 
       : elenco;
   const linhas = base
     .filter((a) => (visao === "todos" || visao === "inativos" ? true : visao === "afastados" ? a.status === "afastado" : GRUPO_DA_POSICAO[a.posicao as Posicao] === visao))
-    .filter((a) => !busca || normalizar(`${a.nome} ${a.apelido} ${a.camisa}`).includes(busca))
+    .filter((a) => !busca || normalizar(`${a.nome} ${a.apelido} ${a.camisa ?? ""}`).includes(busca))
     .map((a) => ({
       id: a.id,
       camisa: a.camisa,
@@ -51,38 +51,36 @@ export default async function PaginaJogadores({ searchParams }: { searchParams: 
       campo === "nome" ? a.nome.localeCompare(b.nome, "pt-BR")
       : campo === "idade" ? a.idade - b.idade
       : campo === "status" ? ORDEM_STATUS[a.status] - ORDEM_STATUS[b.status]
-      : a.camisa - b.camisa;
-    return d * sinal || a.camisa - b.camisa;
+      : a.nome.localeCompare(b.nome, "pt-BR");
+    return d * sinal || a.nome.localeCompare(b.nome, "pt-BR");
   });
 
   return (
-    <div className="mx-auto flex max-w-page flex-col gap-4">
+    <div className="mx-auto flex max-w-page flex-col gap-6">
       <CabecalhoPagina
         titulo="Jogadores"
         contagem={elenco.length}
         descricao="Escolha um jogador para abrir a ficha."
         acoes={
           pode.editar && (
-            <Button asChild>
+            <Button variant="secondary" asChild>
               <Link href="/jogadores/novo"><Plus /> Adicionar jogador</Link>
             </Button>
           )
         }
       />
+      <div className="flex flex-col gap-3">
+        <Visoes opcoes={VISOES} padrao="todos" />
+        <BarraDeFiltros filtros={[]} placeholder="Buscar jogador" />
+      </div>
       <Card className="overflow-hidden">
-        <div className="px-3">
-          <Visoes opcoes={VISOES} padrao="todos" />
-          <BarraDeFiltros filtros={[]} placeholder="Buscar por nome ou número" />
-        </div>
-        <div className="border-t">
-          {elenco.length === 0 ? (
-            <EstadoVazio icone={Users} frase="Nenhum jogador cadastrado ainda." acao={pode.editar ? { rotulo: "Adicionar o primeiro jogador", href: "/jogadores/novo" } : undefined} />
-          ) : linhas.length === 0 ? (
-            <SemResultados frase={busca ? "Nenhum jogador encontrado." : visao === "afastados" ? "Nenhum jogador afastado hoje." : visao === "inativos" ? "Nenhum jogador fora do elenco." : "Nenhum jogador nesta posição."} limparHref="/jogadores" />
-          ) : (
-            <TabelaJogadores linhas={linhas} podeEditar={pode.editar} />
-          )}
-        </div>
+        {elenco.length === 0 ? (
+          <EstadoVazio icone={Users} frase="Nenhum jogador cadastrado ainda." acao={pode.editar ? { rotulo: "Adicionar o primeiro jogador", href: "/jogadores/novo" } : undefined} />
+        ) : linhas.length === 0 ? (
+          <SemResultados frase={busca ? "Nenhum jogador encontrado." : visao === "afastados" ? "Nenhum jogador afastado hoje." : visao === "inativos" ? "Nenhum jogador fora do elenco." : "Nenhum jogador nesta posição."} limparHref="/jogadores" />
+        ) : (
+          <TabelaJogadores linhas={linhas} podeEditar={pode.editar} />
+        )}
       </Card>
     </div>
   );

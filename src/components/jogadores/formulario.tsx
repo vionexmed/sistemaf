@@ -43,12 +43,12 @@ function errosDaEtapa(v: ValoresJogador, etapa: number): Record<string, string> 
   const e: Record<string, string> = {};
   if (etapa === 0) {
     if (v.nome.trim().length < 3) e.nome = "Informe o nome completo";
-    if (!v.apelido.trim()) e.apelido = "Informe o nome na camisa";
+    if (!v.apelido.trim()) e.apelido = "Informe o apelido";
     if (!v.nascimento) e.nascimento = "Informe a data de nascimento";
   }
   if (etapa === 1) {
     const n = Number(v.camisa);
-    if (!v.camisa || !Number.isInteger(n) || n < 1 || n > 99) e.camisa = "Use um número de 1 a 99";
+    if (v.camisa.trim() && (!Number.isInteger(n) || n < 1 || n > 99)) e.camisa = "Use um número de 1 a 99, ou deixe em branco";
     if (!v.posicao) e.posicao = "Escolha a posição";
     if (!v.pe) e.pe = "Escolha o pé dominante";
   }
@@ -158,7 +158,7 @@ export function FormularioJogador({ inicial }: { inicial: ValoresJogador }) {
             <Campo rotulo="Nome completo" htmlFor="nome" erro={erros.nome}>
               <Input id="nome" name="nome" value={v.nome} onChange={(e) => set("nome", e.target.value)} className="max-w-md" autoComplete="off" aria-invalid={!!erros.nome} />
             </Campo>
-            <Campo rotulo="Nome na camisa" htmlFor="apelido" erro={erros.apelido} ajuda="Aparece nos botões e atalhos, ex.: “Registrar atendimento do Rafael”.">
+            <Campo rotulo="Apelido" htmlFor="apelido" erro={erros.apelido} ajuda="Como ele é chamado. Aparece nos botões, ex.: “Registrar atendimento do Rafael”.">
               <Input id="apelido" name="apelido" value={v.apelido} onChange={(e) => set("apelido", e.target.value)} className="max-w-60" maxLength={30} aria-invalid={!!erros.apelido} />
             </Campo>
             <Campo rotulo="Data de nascimento" htmlFor="nascimento" erro={erros.nascimento}>
@@ -170,7 +170,7 @@ export function FormularioJogador({ inicial }: { inicial: ValoresJogador }) {
         <Card className={cn(etapa !== 1 && "hidden")}>
           <CardHeader titulo="No time" />
           <CardContent className="flex flex-col gap-4">
-            <Campo rotulo="Número da camisa" htmlFor="camisa" erro={erros.camisa}>
+            <Campo rotulo="Número da camisa" htmlFor="camisa" opcional erro={erros.camisa} ajuda="Só para identificar na lista. Pode mudar ou ficar em branco.">
               <Input id="camisa" name="camisa" type="number" inputMode="numeric" min={1} max={99} value={v.camisa} onChange={(e) => set("camisa", e.target.value)} className="w-24 text-right tabular" aria-invalid={!!erros.camisa} />
             </Campo>
             <Campo rotulo="Posição" erro={erros.posicao}>
@@ -209,7 +209,7 @@ export function FormularioJogador({ inicial }: { inicial: ValoresJogador }) {
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-2 border-t bg-background px-4 py-3 md:-mx-6 md:px-6">
+        <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-2 border-t bg-surface px-4 py-3 md:-mx-8 md:px-8">
           {editando && <AtivoNoElenco id={v.id!} nome={v.nome} ativo={v.ativo ?? true} />}
           {alterado && <span className="text-sm text-muted-foreground">Alterações não salvas</span>}
           <div className="ml-auto flex items-center gap-2">
@@ -234,11 +234,10 @@ export function FormularioJogador({ inicial }: { inicial: ValoresJogador }) {
           <CardHeader titulo="Prévia na lista" descricao="Atualiza enquanto você digita." />
           <CardContent>
             <div className="flex items-center gap-3 rounded-md border px-3 py-2">
-              <span className="w-6 text-right text-sm text-muted-foreground tabular">{v.camisa || "–"}</span>
-              <Avatar nome={v.nome || "?"} foto={previa} tamanho={32} />
+                            <Avatar nome={v.nome || "?"} foto={previa} tamanho={32} />
               <span className="min-w-0 flex-1 leading-tight">
                 <span className="block truncate font-medium">{v.nome || "Nome do jogador"}</span>
-                <span className="block truncate text-xs text-muted-foreground">{[v.apelido, v.posicao && rotulo(POSICOES, v.posicao)].filter(Boolean).join(" · ") || "Posição"}</span>
+                <span className="block truncate text-xs text-muted-foreground">{[v.apelido, v.posicao && rotulo(POSICOES, v.posicao), v.camisa && `#${v.camisa}`].filter(Boolean).join(" · ") || "Posição"}</span>
               </span>
               <StatusBadge status="liberado" />
             </div>

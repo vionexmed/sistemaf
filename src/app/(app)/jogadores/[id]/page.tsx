@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Activity, FileBarChart, FlaskConical, HeartPulse, MoreHorizontal, Pencil, Plus } from "lucide-react";
+import { Activity, FileBarChart, FlaskConical, HeartPulse, MoreHorizontal, Pencil } from "lucide-react";
 import { cn, fmtNumero } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Kbd, Tooltip } from "@/components/ui/tooltip";
+import { Kbd } from "@/components/ui/tooltip";
 import { EstadoVazio } from "@/components/estados";
 import { StatusBadge } from "@/components/status";
 import { BarrasHorizontais } from "@/components/graficos/barras";
@@ -16,7 +16,6 @@ import { MapaQueixas } from "@/components/jogadores/mapa-queixas";
 import { HistoricoAtendimentos } from "@/components/jogadores/historico";
 import { Documentos } from "@/components/jogadores/documentos";
 import { FotoJogador } from "@/components/jogadores/foto";
-import { TrocarJogador } from "@/components/jogadores/trocar-jogador";
 import { TabelaLesoes } from "@/components/lesoes/tabela";
 import { HD, OBJETIVOS, PERIODOS_DIA, PES, POSICOES, REGIOES, STATUS_ATENDIMENTO, TIPOS_LESAO, TIPOS_TESTE, rotulo } from "@/lib/catalogos";
 import {
@@ -24,7 +23,6 @@ import {
   buscarAtleta,
   documentosDoAtleta,
   hoje,
-  listarAtletas,
   listarLesoes,
   listarUsuarios,
   statusHoje,
@@ -59,12 +57,7 @@ export default async function FichaJogador({ params, searchParams }: { params: P
   const aba = umDe<Aba>(p, "aba", abas.map((a) => a.valor), "geral");
   const h = hoje();
 
-  const [atendimentos, todasLesoes, status, elenco] = await Promise.all([
-    atendimentosDoAtleta(atleta.id),
-    listarLesoes(),
-    statusHoje(),
-    listarAtletas(),
-  ]);
+  const [atendimentos, todasLesoes, status] = await Promise.all([atendimentosDoAtleta(atleta.id), listarLesoes(), statusHoje()]);
   const lesoes = todasLesoes.filter((l) => l.atletaId === atleta.id);
   const statusAtleta = status.get(atleta.id) ?? "liberado";
 
@@ -79,14 +72,14 @@ export default async function FichaJogador({ params, searchParams }: { params: P
   return (
     <div className="mx-auto flex max-w-wide flex-col gap-4">
       <div className="flex flex-col gap-4">
-        <Link href="/jogadores" className="w-fit text-sm text-muted-foreground hover:text-foreground">← Jogadores</Link>
+        
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4">
             <FotoJogador atletaId={atleta.id} nome={atleta.nome} foto={atleta.foto ? `/api/arquivos/${atleta.foto}` : null} podeEditar={pode.editar} />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-semibold">{atleta.nome}</h1>
-                <span className="text-xl text-muted-foreground tabular">#{atleta.camisa}</span>
+                <h1 className="text-2xl font-semibold tracking-titulo">{atleta.nome}</h1>
+                {atleta.camisa != null && <span className="text-2xl text-faint-foreground tabular">#{atleta.camisa}</span>}
                 <StatusBadge status={statusAtleta} />
                 {!atleta.ativo && <Badge>Fora do elenco</Badge>}
               </div>
@@ -94,7 +87,6 @@ export default async function FichaJogador({ params, searchParams }: { params: P
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <TrocarJogador atletas={elenco.map((a) => ({ id: a.id, nome: a.nome, apelido: a.apelido, camisa: a.camisa, posicao: "", foto: a.foto ? `/api/arquivos/${a.foto}` : null }))} atual={atleta.id} aba={aba} />
             <Button variant="secondary" asChild>
               <Link href={`/jogadores/${atleta.id}/relatorio`}><FileBarChart /> Relatório</Link>
             </Button>
@@ -109,11 +101,6 @@ export default async function FichaJogador({ params, searchParams }: { params: P
                     <DropdownMenuItem asChild><Link href={`/jogadores/${atleta.id}/editar`}><Pencil /> Editar cadastro</Link></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Tooltip conteudo={<>Registrar atendimento <Kbd>N</Kbd></>}>
-                  <Button asChild>
-                    <Link href={`/atendimentos/novo?atleta=${atleta.id}`}><Plus /> Registrar atendimento do {atleta.apelido}</Link>
-                  </Button>
-                </Tooltip>
               </>
             )}
           </div>
@@ -130,7 +117,7 @@ export default async function FichaJogador({ params, searchParams }: { params: P
             scroll={false}
             className={cn(
               "-mb-px flex h-9 items-center border-b-2 border-transparent px-2 whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:text-foreground",
-              a.valor === aba && "border-primary font-medium text-foreground",
+              a.valor === aba && "border-foreground font-medium text-foreground",
             )}
           >
             {a.rotulo}
@@ -212,7 +199,7 @@ function VisaoGeral({
     <div className="grid gap-4 lg:grid-cols-3">
       <div className="flex flex-col gap-4 lg:col-span-2">
         <Card>
-          <CardHeader titulo="Mapa de queixas" descricao="Atendimentos e lesões por região do corpo." />
+          <CardHeader titulo="Mapa de queixas" />
           <CardContent>
             <MapaQueixas regioes={regioes} />
           </CardContent>

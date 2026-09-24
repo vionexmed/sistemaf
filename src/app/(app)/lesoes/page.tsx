@@ -31,7 +31,7 @@ export default async function PaginaLesoes({ searchParams }: { searchParams: Pro
   const filtradas = filtrarLesoes(lesoes, visao, filtros).filter((l) => {
     if (!busca) return true;
     const a = atletas.get(l.atletaId);
-    return a != null && normalizar(`${a.nome} ${a.apelido} ${a.camisa}`).includes(busca);
+    return a != null && normalizar(`${a.nome} ${a.apelido} ${a.camisa ?? ""}`).includes(busca);
   });
   const filtroAtivo = busca !== "" || Object.values(filtros).some((f) => f.length > 0);
   const r = resumoLesoes(filtradas, h);
@@ -46,7 +46,7 @@ export default async function PaginaLesoes({ searchParams }: { searchParams: Pro
   ].join(" · ");
 
   return (
-    <div className="mx-auto flex max-w-wide flex-col gap-4">
+    <div className="mx-auto flex max-w-wide flex-col gap-6">
       <CabecalhoPagina
         titulo="Lesões"
         contagem={filtradas.length}
@@ -58,7 +58,7 @@ export default async function PaginaLesoes({ searchParams }: { searchParams: Pro
             </Button>
             {pode.editar && (
               <Tooltip conteudo={<>Registrar lesão <Kbd>L</Kbd></>}>
-                <Button asChild>
+                <Button variant="secondary" asChild>
                   <Link href="/lesoes/nova"><Plus /> Registrar lesão</Link>
                 </Button>
               </Tooltip>
@@ -66,30 +66,28 @@ export default async function PaginaLesoes({ searchParams }: { searchParams: Pro
           </>
         }
       />
+      <div className="flex flex-col gap-3">
+        <Visoes opcoes={VISOES_LESAO} padrao="todas" />
+        <BarraDeFiltros
+          filtros={[
+            { chave: "campeonato", rotulo: "Campeonato", opcoes: CAMPEONATOS },
+            { chave: "periodo", rotulo: "Período", opcoes: PERIODOS_TEMPORADA },
+            { chave: "tipo", rotulo: "Tipo", opcoes: TIPOS_LESAO },
+            { chave: "regiao", rotulo: "Região", opcoes: REGIOES },
+          ]}
+        />
+      </div>
       <Card className="overflow-hidden">
-        <div className="px-3">
-          <Visoes opcoes={VISOES_LESAO} padrao="todas" />
-          <BarraDeFiltros
-            filtros={[
-              { chave: "campeonato", rotulo: "Campeonato", opcoes: CAMPEONATOS },
-              { chave: "periodo", rotulo: "Período", opcoes: PERIODOS_TEMPORADA },
-              { chave: "tipo", rotulo: "Tipo", opcoes: TIPOS_LESAO },
-              { chave: "regiao", rotulo: "Região", opcoes: REGIOES },
-            ]}
-          />
-        </div>
-        <div className="border-t">
-          {lesoes.length === 0 ? (
-            <EstadoVazio icone={HeartPulse} frase="Nenhuma lesão registrada na temporada." acao={pode.editar ? { rotulo: "Registrar lesão", href: "/lesoes/nova" } : undefined} />
-          ) : filtradas.length === 0 ? (
-            filtroAtivo ? <SemResultados limparHref={visao === "todas" ? "/lesoes" : `/lesoes?visao=${visao}`} /> : <p className="px-4 py-12 text-center text-muted-foreground">{visao === "abertas" ? "Nenhuma lesão em aberto." : "Nenhuma lesão encerrada."}</p>
-          ) : (
-            <>
-              <TabelaLesoes linhas={itens.map((l) => linhaLesao(l, atletas.get(l.atletaId)!, h, pode.verSaude))} podeEditar={pode.editar} />
-              <Paginacao pagina={pagina} totalPaginas={totalPaginas} total={filtradas.length} />
-            </>
-          )}
-        </div>
+        {lesoes.length === 0 ? (
+          <EstadoVazio icone={HeartPulse} frase="Nenhuma lesão registrada na temporada." acao={pode.editar ? { rotulo: "Registrar lesão", href: "/lesoes/nova" } : undefined} />
+        ) : filtradas.length === 0 ? (
+          filtroAtivo ? <SemResultados limparHref={visao === "todas" ? "/lesoes" : `/lesoes?visao=${visao}`} /> : <p className="px-4 py-12 text-center text-muted-foreground">{visao === "abertas" ? "Nenhuma lesão em aberto." : "Nenhuma lesão encerrada."}</p>
+        ) : (
+          <>
+            <TabelaLesoes linhas={itens.map((l) => linhaLesao(l, atletas.get(l.atletaId)!, h, pode.verSaude))} podeEditar={pode.editar} />
+            <Paginacao pagina={pagina} totalPaginas={totalPaginas} total={filtradas.length} />
+          </>
+        )}
       </Card>
     </div>
   );

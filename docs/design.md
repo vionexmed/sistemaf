@@ -1,294 +1,218 @@
 # Design — Fisioterapia EC Santo André
 
-Toda UI do sistema segue este arquivo. Ele junta os dois presets enviados:
+Toda UI do sistema segue este arquivo. Ordem de prioridade quando algo conflita:
 
-- **Preset 3 · Admin/Dados** é a **base**: a unidade de trabalho é o registro (atendimento, lesão, jogador). O usuário filtra, abre, registra e exporta o dia todo.
-- **Preset 1 · Utilitário** entra com a barra de comando, os atalhos de teclado, o motion e o modo escuro, porque a fisio abre o sistema todo dia.
+1. **Facilidade para a fisio.** Quem usa está na sala, com o atleta na frente, e quer registrar e sair. Na dúvida, menos elementos, menos palavras, menos cliques.
+2. **Referências visuais reais** estudadas na coleção `awesome-design-md` (Vercel/Geist, Linear, Cal.com): neutros puros, ação primária em tinta preta, bordas finas com sombras empilhadas bem leves, tipografia com espaçamento justo nos títulos.
+3. **Preset 3 · Admin/Dados** para a estrutura (índice, detalhe, formulário, tabela, estados) e **Preset 1 · Utilitário** para barra de comando, atalhos e modo escuro.
 
-O prompt do sistema (em `CLAUDE.md`) define **o que** existe: telas, fluxos, campos e regras. **Como** fica na tela vem daqui. O CSS do MVP antigo (azul-marinho, amarelo, Barlow Condensed, medidas em px) não é usado.
+O prompt do sistema (em `CLAUDE.md`) define **o que** existe. **Como** fica na tela vem daqui. O visual do MVP antigo (azul-marinho, amarelo, Barlow Condensed) não é usado.
 
-Antes de criar uma tela, leia as [referências](#referências). Ao terminar uma entrega, rode o [checklist](#checklist-antes-de-entregar) e `/ui-ux-ai-slop` quando estiver disponível.
+Ao terminar uma entrega, rode o [checklist](#checklist-antes-de-entregar) e `/ui-ux-ai-slop` quando estiver disponível.
 
-**Referência mental:** Shopify Admin (Polaris), IBM Carbon e Linear. Claro, alto contraste, tabela como protagonista, formulários previsíveis.
+## Princípios de facilidade
 
-## Regras universais
-
-1. Uma ação primária por tela. O resto é secundário ou some.
-2. Grid de 8 px e no máximo 3 tamanhos de texto por tela.
-3. Neutros + 1 acento para ações + 4 cores semânticas com papel fixo. Cor nunca é decoração.
-4. Card = seção de página com um propósito. Nunca card dentro de card. Tabela nunca dentro de card com padding.
-5. Um único design system: shadcn/ui com as regras Polaris/Carbon. Proibido inventar componente novo se já existe um.
-6. Estados vazio, sem resultados, carregando, erro e sucesso são obrigatórios.
+- **A ação do dia fica sempre no mesmo lugar:** "Registrar atendimento" é o botão preto no topo da lateral, em todas as telas. Na ficha de um jogador ele vira "Atendimento do Rafael" e já abre com ele.
+- **Um botão preto por tela.** O da lateral é o principal do sistema; ações das páginas (Adicionar jogador, Registrar lesão, Exportar, Relatório) são secundárias (brancas). Nos formulários, o preto é o Salvar.
+- **Nada de seleção em massa, caixinhas ou configurações escondidas** nas listas do dia a dia. Uma linha = um clique abre a ficha; `···` tem o resto.
+- **Menos texto de apoio.** Card tem título; descrição só quando ensina algo que não é óbvio ("Preenchido com o último atendimento").
+- **Palavras da fisio:** "Atendimentos de hoje", "Jogadores", "Lesões", "Avisos". Nada de jargão técnico.
+- **Número da camisa é opcional** e nunca identifica, ordena ou filtra nada. Aparece só como detalhe discreto ("Rafael · #9") quando existe.
 
 ## Arquitetura da informação
 
-Três tipos de página, e só três. Toda tela do sistema é um deles:
+Três tipos de página, e só três:
 
-| Tipo | Telas | Rota |
-|---|---|---|
-| **Índice** | Atendimentos, Jogadores, Lesões, Painel (índice agregado) | `/atendimentos`, `/jogadores`, `/lesoes`, `/painel` |
-| **Detalhe** | Ficha do jogador, Relatório do jogador (versão impressa do detalhe) | `/jogadores/:id`, `/jogadores/:id/relatorio` |
-| **Formulário** | Registrar/editar atendimento, Registrar/editar lesão, Registrar retorno, Adicionar/editar jogador, Configurações | `/atendimentos/novo`, `/atendimentos/:id/editar`, `/lesoes/nova`, `/lesoes/:id/editar`, `/jogadores/novo`, `/jogadores/:id/editar`, `/configuracoes/*` |
+| Tipo | Telas |
+|---|---|
+| **Índice** | Atendimentos, Jogadores, Lesões, Painel (índice agregado) |
+| **Detalhe** | Ficha do jogador, Relatório do jogador |
+| **Formulário** | Registrar/editar atendimento, Registrar/editar lesão, Registrar retorno, Adicionar/editar jogador, Configurações |
 
-### 1. Índice — ex.: `/atendimentos`
-
-```
-Atendimentos (9)                                        [Exportar ▾]
-──────────────────────────────────────────────────────────────────────
-[Hoje] [Ontem] [7 dias] [Todos]      🔍 buscar atleta    [Filtros ▾]
-Matutino ×  Tendinopatia ×                               Limpar filtros
-──────────────────────────────────────────────────────────────────────
-☐  Nº  Atleta          Posição   HD           Local    Status          ···
-☐  9   Rafael Moura    Atacante  Tendinopatia Joelho   ● Em tratamento ···
-...
-◂ 1 2 3 ▸                                             50 por página ▾
-```
-
-- Cabeçalho: título + contagem, 1 ação primária (quando a tela tem uma), demais ações em menu.
-- Abas = visões salvas (filtros preestabelecidos). Filtros avançados em popover; filtros ativos aparecem como chips removíveis.
-- Seleção em massa: ao marcar linhas, uma barra de ações (Exportar, Excluir) substitui a barra de filtros.
-- Largura total quando a tabela tem 5+ colunas (máx. 1600 px); ~1000 px caso contrário.
-- Filtros, ordenação, busca e página refletidos na URL.
-
-### 2. Detalhe — ex.: `/jogadores/24`
+### Índice
 
 ```
-← Jogadores   Rafael Moura  #9   ● Em tratamento     [Relatório] [···] [Registrar atendimento]
-[Visão geral] [Atendimentos] [Lesões] [Testes] [Documentos]
-──────────────────────────────────────────────────────────────────────
-┌ Mapa de queixas ───────────────────┐  ┌ Perfil ──────────────────┐
-│ manequim + regiões                 │  │ posição, idade, altura…  │
-└────────────────────────────────────┘  └──────────────────────────┘
-┌ Frequência · 14 dias ──────────────┐  ┌ Hoje ────────────────────┐
-│ velas                              │  │ período, objetivo, evol. │
-└────────────────────────────────────┘  └──────────────────────────┘
+Atendimentos de hoje 6                                        [Exportar]
+Quinta-feira, 24 de setembro · 4 em tratamento · 2 queixa pós-treino
+
+(Hoje) Ontem  7 dias  Temporada                              ‹ Hoje ›
+[🔍 Buscar atleta]  [Filtros]
+┌───────────────────────────────────────────────────────────────────────┐
+│ Atleta           Status            Posição   Período   HD    …    ··· │
+│ ◯ Rafael Moura   ● Em tratamento   Atacante  Matutino  …          ··· │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
-- Cabeçalho: voltar, título, badge de status, ações (primária à direita, secundárias antes dela, o resto em `···`).
-- Subseções viram abas dentro da página; a aba ativa fica na URL (`?aba=lesoes`).
-- Corpo em **2/3 conteúdo principal** + **1/3 lateral** (metadados, contexto). Cada card = uma subtarefa.
-- Celular: colunas empilham, lateral vai para baixo.
+- Cabeçalho: título grande + contagem em cinza, frase de resumo, ação secundária à direita.
+- Visões em pílulas (a ativa em tinta cheia). Busca e "Filtros" logo abaixo; filtros ativos viram chips removíveis.
+- A tabela fica sozinha num card, encostada nas bordas.
+- Filtros, ordenação, busca, página e aba vivem na URL.
 
-### 3. Formulário — ex.: `/atendimentos/novo`
+### Detalhe
 
-- Coluna de 640 px, grupos com título e descrição curta, campos com label acima.
-- **Exceção declarada:** Registrar atendimento e Registrar lesão têm uma lateral de contexto (1/3) com o histórico do atleta, porque a regra de ouro do produto é registrar olhando o último atendimento.
-- Configurações: descrição do grupo à esquerda (1/3), campos em card à direita (2/3).
-- Barra de salvar fixa no rodapé quando há alterações não salvas ("Alterações não salvas · [Descartar] [Salvar]").
-- Validação inline ao sair do campo; resumo de erros no topo ao tentar salvar.
+- Cabeçalho: foto redonda, nome grande, camisa (se houver) e status; à direita Relatório e `···` (Registrar lesão, Editar cadastro).
+- Abas sublinhadas em tinta; a aba ativa fica na URL.
+- Corpo em 2/3 + 1/3. Um card por assunto.
 
-### Navegação
+### Formulário
 
-- **Lateral** (240 px, colapsa para 56 px só com ícones), agrupada por seção, ≤ 8 itens, sem terceiro nível:
-  - *Trabalho:* Atendimentos, Jogadores, Lesões
-  - *Análise:* Painel
-  - *Sistema:* Configurações
-  - Topo: escudo/nome do clube e busca (abre Ctrl+K). Rodapé: usuário e perfil.
-- **Topo** (48–56 px): breadcrumb à esquerda; busca global, notificações e usuário à direita.
-- **Barra de comando (Ctrl/Cmd+K):** jogadores (por nome ou camisa), todas as telas e as ações Registrar atendimento, Registrar lesão e Adicionar jogador. Toda ação de menu também existe nela.
-- **Atalhos** (mostrar no tooltip): `N` registrar atendimento, `L` registrar lesão, `/` buscar, `G` + `A/J/L/P` para ir a Atendimentos, Jogadores, Lesões, Painel. Setas navegam em listas; `Esc` fecha tudo.
+- Grupos numerados (1. Atleta, 2. Queixa, 3. Trabalho de hoje) em cards; lateral com o histórico do jogador num card só.
+- Barra de salvar fixa no rodapé do painel: Cancelar (texto), secundário, primário (preto).
+- Cadastro em etapas com barra de progresso; botões que trocam de papel têm `key` próprias.
 
 ## Layout (app shell)
 
 ```
-┌─────────────┬──────────────────────────────────────────────────────┐
-│ Sidebar     │ Topo 56px · breadcrumb          🔍  🔔  usuário       │
-│ 240px       ├──────────────────────────────────────────────────────┤
-│ colapsa p/  │ Cabeçalho da página: título (contagem) · [Ação primária]│
-│ 56px ícones │ Conteúdo: tabela / detalhe / formulário              │
-│             │ padding 24px · máx. 1600px (índice) / 1000px (resto)  │
-└─────────────┴──────────────────────────────────────────────────────┘
+ fundo cinza #f4f4f5                     painel branco com borda fina e cantos 12 px
+┌──────────────┐ ┌──────────────────────────────────────────────────────────┐
+│ ⛨ EC Santo   │ │ Jogadores / Rafael Moura                   🔔  (T) Thales │
+│   André   ◫  │ ├──────────────────────────────────────────────────────────┤
+│ [+ Registrar │ │                                                          │
+│  atendimento]│ │  conteúdo · padding 32 px                                │
+│ 🔍 Buscar  ⌃K│ │                                                          │
+│ ──────────── │ │                                                          │
+│ ▣ Atend.   6 │ │                                                          │
+│ ◯ Jogadores 3│ │                                                          │
+│ ♡ Lesões   2 │ │                                                          │
+│ ▦ Painel     │ │                                                          │
+│ Temporada 26 │ │                                                          │
+└──────────────┘ └──────────────────────────────────────────────────────────┘
 ```
 
-Base de implementação: blocos `sidebar-01` e `dashboard-01` do shadcn/ui, escritos à mão em `src/components/ui` (o registro do shadcn não é acessível daqui; o código segue o mesmo padrão).
+**Lateral** (240 px; recolhe para 64 px só com ícones):
+
+- Topo: escudo do clube (placeholder neutro com o escudo em azul), "EC Santo André" / "Fisioterapia" e o botão de recolher.
+- Botão preto "Registrar atendimento" (só Fisioterapia).
+- "Buscar jogador" com `Ctrl K`, como uma linha de navegação.
+- 4 itens sem seções nem títulos: Atendimentos, Jogadores, Lesões, Painel. Ícone 16 px cinza + texto 14 px/500.
+- Item ativo: fundo branco "levantado" (hairline + sombra mínima), texto em tinta. Sem cor de acento, sem pílula colorida.
+- Contador discreto à direita quando ajuda: atendimentos de hoje, afastados hoje, lesões em aberto.
+- Rodapé: "Temporada 2026" em cinza claro.
+
+**Topo** (48 px, dentro do painel): caminho de navegação, Avisos (sino com pontinho azul quando há algo) e o **menu do perfil** (avatar + nome), que reúne **Configurações**, tema claro/escuro, "Trocar perfil (demonstração)" e Sair.
+
+**Celular:** sem lateral; a tela de registro tem cabeçalho próprio.
 
 ## Tokens
 
-Definidos em `src/app/globals.css` e expostos ao Tailwind via `@theme`. Não usar valor fora desta lista.
+Em `src/app/globals.css`, expostos ao Tailwind via `@theme` (a paleta, os tamanhos e os raios padrão do Tailwind ficam desligados).
 
-```css
-:root {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --text-xs: 12px;   /* badges, ajuda de campo, cabeçalho de tabela */
-  --text-sm: 13px;   /* tabelas, metadados, sidebar */
-  --text-base: 14px; /* corpo, inputs, botões */
-  --text-lg: 16px;   /* título de card/seção */
-  --text-xl: 20px;   /* título de página */
-  --leading: 1.5;
+| Grupo | Valores |
+|---|---|
+| Fonte | **Geist** (texto e números, `tabular-nums`), Geist Mono reservada |
+| Tamanhos | 12 · 13 · 14 (base) · 16 · 20 · 24 (título de página) |
+| Pesos | 400 · 500 · 600 |
+| Espaçamento de letras | títulos −0,011 em; título de página −0,022 em; texto normal 0 |
+| Espaçamento | grid de 4/8 px (4, 8, 12, 16, 24, 32, 48) |
+| Raios | 4 (etiquetas) · 6 (botões, campos) · 10 (cards) · 12 (painel, dialogs) · cheio (pílulas, avatares, badges) |
+| Alturas | controles 36 px · linhas de tabela 44 px · linha da lateral 32 px |
+| Larguras | índice até 1400 px · detalhe e formulário 1000 px |
 
-  /* grid 8px */
-  --space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px; --space-5: 32px; --space-6: 48px;
+### Superfícies e elevação (Vercel)
 
-  --radius: 8px;     /* cards, inputs, botões */
-  --radius-sm: 4px;  /* badges, checkboxes */
-  --border: 1px solid var(--slate-6);
-  --shadow-overlay: 0 4px 16px rgba(0,0,0,.10); /* só popovers, menus, modais */
+| Nível | Uso | Valor |
+|---|---|---|
+| Fundo | lateral e área fora do painel | `#f4f4f5` |
+| Painel | área de conteúdo | branco, hairline + sombra 1–2 px |
+| Card | seções | branco, hairline `gray-a4` + sombra empilhada de 2–4 px a 2–4 % |
+| Ativo | item de lateral, botão secundário, pílula não marcada | hairline + sombra 1 px |
+| Overlay | menus, popovers, dialogs, toasts | hairline + sombra empilhada até 32 px a 6–8 % |
 
-  --page-max: 1000px;
-  --page-max-wide: 1600px;
-  --row-h: 44px;  --row-h-compact: 36px;
-  --control-h: 36px;
-  --icon: 16px;      /* dentro de botões e linhas; 20px na navegação */
-}
-```
-
-- Pesos de fonte: 400, 500 e 600.
-- Números em tabelas e cartões com `font-variant-numeric: tabular-nums`, alinhados à direita.
-- Títulos em sentence case ("Registrar atendimento"). Nada em caixa alta.
+Nunca uma sombra única pesada. Bordas de 1 px em `gray-a5`.
 
 ## Cor
 
-Escalas de 12 passos do Radix Colors (pacote `@radix-ui/colors`). Papel fixo por passo:
+Escalas Radix de 12 passos. Papel fixo: 1–2 fundos, 3–5 componentes, 6–8 bordas, 9–10 sólidos, 11–12 texto.
 
-| Passos | Uso |
-|---|---|
-| 1–2 | fundo do app (2) e fundos sutis (sidebar, cabeçalho de tabela) |
-| 3–5 | fundo de componente: normal / hover / pressionado ou selecionado |
-| 6–8 | bordas e separadores (6 sutil, 7 interativo, 8 forte) |
-| 9–10 | preenchimento sólido (botão primário) e seu hover |
-| 11–12 | texto: 11 secundário, 12 primário |
-
-| Papel | Escala | Onde aparece |
+| Papel | Cor | Onde |
 |---|---|---|
-| Neutra | `slate` | fundo do app (2), cards (branco/1), bordas (6), texto (11–12) |
-| Acento | `indigo` (azul profundo, conversa com o azul e branco do clube; o `blue` 9 do Radix não passa AA com texto branco) | botão primário, links, foco, aba ativa, seleção |
-| Sucesso | `green` | toast de sucesso, status **Liberado** |
-| Atenção | `amber` | status **Queixa pós-treino**, banner de aviso |
-| Crítico | `red` | erro, ação destrutiva, status **Afastado** |
-| Informativo | `blue` | status **Em tratamento**, banner informativo |
+| Neutra | `gray` (sem tom azul) | tudo que não é status nem dado |
+| Tinta | `#171717` | botão primário, pílula/opção selecionada, sublinhado da aba, tooltip |
+| Acento | azul Santo André `#1f4f9c` (`blue` Radix para foco e links) | escudo, foco (anel `blue-8`), links, pontinho de aviso, gráficos |
+| Semânticas | `red`, `blue`, `amber` | badges de status, erro, validação |
 
-- Tema claro por padrão; **modo escuro** pelos mesmos tokens (`slateDark`, `indigoDark`…), alternado no menu do usuário. Nenhuma cor avulsa para o escuro.
-- Contraste AA (4,5:1) obrigatório em texto de tabela e badges.
-- **Gráficos:** paleta categórica de no máximo 6 cores dessaturadas (`--chart-1` a `--chart-6`); nunca a paleta semântica em gráficos.
+- Modo escuro pelos mesmos tokens (a tinta vira quase branco).
+- Contraste AA em todo texto.
+- Gráficos: paleta categórica (`--chart-1` azul do clube, `--chart-2` areia), nunca as cores semânticas.
 
-### Status do atleta e do atendimento
+### Status
 
-Sempre badge pequena: fundo passo 3, texto passo 11 da cor semântica, ponto colorido à esquerda. Nunca célula inteira colorida; nunca só cor (o texto sempre aparece).
+Badge em pílula (altura 20 px) com ponto. **Só o que exige atenção tem cor**; o normal é cinza.
 
 | Status | Cor |
 |---|---|
 | Afastado | `red` |
 | Em tratamento | `blue` |
 | Queixa pós-treino | `amber` |
-| Liberado | `green` |
+| Liberado | neutro (cinza) |
 
-## Tabela (componente principal)
+## Componentes
 
-- Colunas alinhadas por tipo: texto à esquerda, números à direita com `tabular-nums`; datas relativas ("há 2 h") com data absoluta no tooltip quando o dado é "quando foi registrado"; datas clínicas (dia do atendimento, da lesão) sempre absolutas (23/09).
-- Header fixo ao rolar; ordenável (indicador na coluna ativa).
-- Densidade: 44 px por linha; "compacta" 36 px no menu da tabela. Fonte 13 px.
-- Texto longo truncado com `…` e tooltip. Nunca quebrar linha dentro da célula.
-- Ações por linha em menu `···` sempre visível (Editar, Excluir, Registrar retorno).
-- Linha inteira clicável abre o detalhe; checkbox só na primeira coluna.
-- Separador 1 px; sem zebra.
-- Ordem das colunas: identificador (camisa) → atleta → status → valores → datas → ações.
+| Componente | Regra |
+|---|---|
+| Botão primário | tinta, texto branco, 36 px, raio 6, sombra 1 px |
+| Botão secundário | branco com hairline e sombra 1 px; hover `#fafafa` |
+| Botão fantasma | texto cinza, hover fundo `gray-a3` |
+| Campo | borda `gray-a7`, hover `gray-a8`, foco anel azul 2 px |
+| Opções da planilha | **pílulas** de 36 px; selecionada = tinta cheia com texto branco (fácil de ver de longe na sala) |
+| Visões do índice | pílulas de 32 px; ativa em tinta |
+| Filtro segmentado (Painel) | trilho cinza; opção ativa em branco "levantado" |
+| Abas da ficha | texto 14 px; ativa em tinta com sublinhado 2 px |
+| Tabela | cabeçalho branco com rótulos 12 px cinza-claro; linhas de 44 px; hover `gray-a3`; `···` sempre visível |
+| Avatar | redondo; sem foto, iniciais em cinza sobre `gray-a3` |
+| Toast | 3 s, canto inferior direito, nível overlay |
+| Dialog | só para confirmar exclusão, nomeando o item |
 
-## Formulários
+### Gráficos (feitos à mão, `src/components/graficos`)
 
-- Label acima do campo, peso 500; ajuda abaixo em 12 px cinza; erro em vermelho com ícone e mensagem específica ("Escolha o local da queixa", não "Campo inválido").
-- Largura proporcional ao dado: data, camisa, altura e peso curtos; nome e observação largos.
-- Obrigatório é o padrão; marcar só os opcionais ("(opcional)").
-- **Listas da planilha (HD, local, objetivo, status, tipo de lesão…) usam `ToggleGroup`** (botões de opção, um toque), mesmo acima de 8 opções. Exceção declarada à regra "select com busca acima de 8": o produto exige registro em 2 ou 3 toques. Select com busca fica para escolher o atleta.
-- Datas com input digitável + calendário.
-- Botões: primário à direita, cancelar como texto à esquerda dele. Destrutivo separado, em vermelho, à esquerda.
-- Destrutivo sempre confirma em modal nomeando o item e a consequência: "Excluir o atendimento de Rafael Moura em 23/09 (matutino)? Isso não pode ser desfeito."
-
-## Dashboard (Painel)
-
-- Máximo 4 KPIs, cada um com número, variação vs. período anterior e **link para o índice filtrado** que explica o número.
-- Um gráfico principal respondendo uma pergunta explícita: "Atendimentos por dia/semana/mês no período". Barras; sem gauge, donut, pizza ou 3D.
-- Abaixo, a tabela **Precisa de atenção**: atletas afastados, lesões em aberto há mais de 14 dias, retornos previstos para hoje e amanhã.
-- Depois, a seção **Distribuição**: listas de barras horizontais (local da queixa, HD, objetivo, posição, lesões por região e por tipo, atletas com mais atendimentos). Cada linha é um link para o índice filtrado.
-- Sem cards de KPI com ícone colorido; sem widgets arrastáveis.
-
-## Componentes do produto
-
-| Componente | Base shadcn | Regra |
-|---|---|---|
-| Badge de status | `Badge` | cores da tabela de status acima |
-| Opções da planilha | `ToggleGroup` | selecionado = acento passo 3 de fundo, borda passo 8, texto 12 |
-| Seleção de atleta | `Command` em `Popover` | busca por nome, apelido ou camisa |
-| Filtros | `Tabs` (visões) + `Popover` + chips | chips removíveis, "Limpar filtros" |
-| Avatar do jogador | `Avatar` | foto quadrada com raio 8 px; sem foto, iniciais em slate 11 sobre slate 3 |
-| Barras horizontais | à mão (HTML) | uma cor categórica, número à direita, ordenado do maior para o menor |
-| Colunas por tempo | à mão (SVG) | empilhadas em `--chart-1` (em tratamento) e `--chart-2` (queixa), legenda sempre visível, total acima |
-| Velas · 14 dias | à mão (SVG) | uma coluna fina por dia, altura = atendimentos, cor categórica pelo status; dia vazio = tracinho slate 6 |
-| Manequim | à mão (SVG) | frente e costas; corpo em slate 3 com contorno slate 7; queixa atual em acento 9, antigas em acento 6; região selecionada com contorno tracejado; brilho sempre mascarado pelo corpo |
+- Barras horizontais: uma cor (`--chart-1`), número à direita, maior para menor.
+- Barras por tempo: empilhadas (`--chart-1` em tratamento, `--chart-2` queixa), total acima, legenda visível.
+- Velas de 14 dias: coluna fina por dia; dia vazio = tracinho cinza.
+- Manequim: corpo cinza claro com contorno fino; queixa atual em `--chart-1`, antigas em azul claro; seleção com contorno tracejado em tinta; brilho sempre mascarado pelo corpo.
+- Sem pizza, donut, gauge ou 3D.
 
 ## Estados obrigatórios
 
-- **Vazio (primeiro uso):** ícone 24 px, frase de uma linha, botão "Adicionar o primeiro jogador" / "Registrar o primeiro atendimento".
-- **Sem resultados (filtro):** frase + "Limpar filtros". Nunca a mesma tela do vazio.
-- **Carregando:** skeleton da tabela com o mesmo número de colunas; skeleton de cards no detalhe (`loading.tsx` de cada rota).
-- **Erro de carregamento:** banner crítico com a causa e "Tentar de novo" (`error.tsx`); nunca tela em branco.
-- **Sucesso:** toast 3 s; ao criar um recurso, redirecionar para o detalhe (novo jogador → ficha).
-- **Alterações não salvas:** barra fixa + confirmação ao sair da página.
+- **Vazio:** ícone 24 px, uma frase, um botão.
+- **Sem resultados:** frase + "Limpar filtros".
+- **Carregando:** skeleton com a geometria da tela (`loading.tsx`).
+- **Erro:** banner vermelho com a causa e "Tentar de novo" (`error.tsx`).
+- **Sucesso:** toast; criar recurso leva ao detalhe.
+- **Não salvo:** aviso na barra de salvar e confirmação ao sair.
 
 ## Motion
 
-120–160 ms, `ease-out`, só em abrir/fechar overlays e hover. Sem animação de entrada de página. Respeitar `prefers-reduced-motion`.
+120–160 ms, `ease-out`, só em hover e overlays. Respeita `prefers-reduced-motion`.
 
-## Proibido
+## Proibido (o que dá "cara de IA")
 
-- Dashboard de boas-vindas com saudação; banners; ilustrações decorativas; copy de marketing.
-- KPI cards com ícone colorido em tile, gradientes ou sombras; gráficos decorativos (gauge, donut, pizza, 3D).
-- Card dentro de card; tabela dentro de card com padding; cards com sombra.
-- Mais de uma cor de acento; cor de fundo em linhas de tabela; badges saturadas; texto colorido como único indicador de status.
-- Modal para criar/editar registros (abre página). Modal só para confirmar destrutivo.
-- Ícones sem rótulo em ações principais; menu `···` escondido só no hover.
-- Terceiro nível de navegação; sidebar com mais de 8 itens.
-- Campos todos em largura total; placeholder no lugar de label.
-- Tipografia acima de 20 px (inclusive números de KPI: 20 px, 600).
-- A mesma informação em mais de um lugar (princípio "um lugar por informação" do `CLAUDE.md`).
-
-## Conflitos entre os presets (resolvidos)
-
-| Tema | Preset 1 | Preset 3 | Decidido |
-|---|---|---|---|
-| Espaçamento | 4/8/12/16/24/32 | grid 8: 4/8/16/24/32/48 | Preset 3 |
-| Controles | 32 px | 36 px | 36 px (toque na sala de fisioterapia) |
-| Linha de tabela | 36 px | 44 px (compacta 36) | Preset 3 |
-| Raio | 4/6/8 | 4/8 | Preset 3 |
-| Modo escuro | obrigatório | opcional | incluído (custa pouco com os tokens Radix) |
-| Home | lista de trabalho | — | Fisioterapia → Atendimentos (Hoje); Médico e Comissão → Painel |
-| Status | badge fundo 3 / texto 11 | idem + ponto | badge com ponto |
-| Lista da planilha com 8+ opções | — | select com busca | ToggleGroup (exceção declarada acima) |
-| "Registrar atendimento" na barra superior (prompt) | 1 primária por tela | primária no cabeçalho da página | É a primária do cabeçalho em **Atendimentos** e na **ficha** (lá já abre com o jogador). Nas outras telas, que têm a própria primária, fica no atalho `N` e na barra de comando. Nunca aparece duas vezes na mesma tela |
+- Acento colorido em tudo (botões, seleções, ícones, fundos azuis claros por toda parte).
+- Pílula colorida no item ativo da lateral; seções com títulos na lateral para 4 itens.
+- Quadrado colorido com iniciais como logo; gradientes; ícones em tiles coloridos.
+- Todo card com título **e** descrição; textos de apoio repetindo o título.
+- Status "normal" colorido (verde em todas as linhas).
+- Cinza azulado (`slate`) como neutro; sombras únicas pesadas.
+- Mais de um botão preto por tela; ações duplicadas.
+- Modal para criar ou editar registro; placeholder no lugar de label.
 
 ## Checklist antes de entregar
 
-- [ ] Toda tela é um dos 3 tipos (índice, detalhe, formulário) e segue o esqueleto.
-- [ ] Exatamente 1 ação primária identificável em 2 segundos.
-- [ ] Índice: abas de visão, busca, filtros em chips, seleção em massa, paginação, URL sincronizada.
-- [ ] Tabela: alinhamento por tipo, `tabular-nums`, header fixo, truncamento com tooltip, `···` sempre visível.
-- [ ] Detalhe: 2/3 + 1/3, um card por subtarefa, badge de status no cabeçalho, aba na URL.
-- [ ] Formulário: labels acima, larguras proporcionais, erros específicos, barra de salvar fixa.
-- [ ] Destrutivo confirma nomeando o item.
-- [ ] 6 estados presentes (vazio, sem resultados, carregando, erro, sucesso, não salvo).
-- [ ] Só tokens do grid de 8 px; contraste AA em tabela e badges; modo escuro sem cor avulsa.
-- [ ] Ctrl/Cmd+K cobre navegação + ações principais.
+- [ ] A fisio acha a ação principal em 2 segundos, sem ler nada.
+- [ ] Um botão preto por tela (o da lateral conta).
+- [ ] Só tokens deste arquivo; nenhuma cor ou tamanho avulso.
+- [ ] Status: só afastado, em tratamento e queixa com cor.
+- [ ] Filtros e aba na URL.
+- [ ] 6 estados presentes.
+- [ ] Contraste AA; modo escuro sem cor avulsa.
+- [ ] Ctrl/Cmd+K cobre jogadores, telas e ações.
 - [ ] Perfil sem permissão não vê o botão nem consegue a ação por POST.
-- [ ] `/ui-ux-ai-slop` executado sem achados críticos.
 
 ## Referências
 
-Estudar antes de começar.
+Estudadas em `github.com/VoltAgent/awesome-design-md` (os sites de origem ficam bloqueados no ambiente de desenvolvimento):
 
-- Shopify Polaris — *Resource index layout*: https://polaris-react.shopify.com/patterns/resource-index-layout
-- Shopify Polaris — *Resource details layout*: https://polaris-react.shopify.com/patterns/resource-details-layout
-- Shopify Polaris — *App settings layout*: https://polaris-react.shopify.com/patterns/app-settings-layout
-- Shopify Polaris — princípios de layout: https://polaris-react.shopify.com/design/layout
-- Shopify — diretrizes de layout para apps: https://shopify.dev/docs/apps/design/layout
-- IBM Carbon — *Data table*: https://carbondesignsystem.com/components/data-table/usage/
-- IBM Carbon — *2x Grid*: https://carbondesignsystem.com/elements/2x-grid/usage/
-- Linear — como redesenharam a UI: https://linear.app/now/how-we-redesigned-the-linear-ui
-- Linear — refresh mais recente: https://linear.app/now/behind-the-latest-design-refresh
-- Vercel Geist: https://vercel.com/geist/introduction
-- shadcn/ui — blocos de sidebar: https://ui.shadcn.com/blocks/sidebar
-- shadcn/ui — bloco `dashboard-01`: https://ui.shadcn.com/blocks
-- Radix Colors — papel de cada passo: https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale
-- Radix Colors — compor a paleta: https://www.radix-ui.com/colors/docs/palette-composition/composing-a-palette
-- NN/g — princípios de design visual: https://www.nngroup.com/articles/principles-visual-design/
-- Refactoring UI: https://refactoringui.com/
-- Refero — padrões reais: https://refero.design/patterns
-- Coleção de `DESIGN.md`: https://github.com/voltagent/awesome-design-md
+- `design-md/vercel/DESIGN.md` — neutros, hairline `#ebebeb`, tinta `#171717`, sombras empilhadas, tracking negativo, linha de lateral ativa.
+- `design-md/linear.app/DESIGN.md` — um acento só, nunca decorativo; badges em pílula neutra; densidade.
+- `design-md/cal/DESIGN.md` — botões primários pretos, cards com cantos suaves, muito espaço em branco.
+
+Estrutura: Shopify Polaris (*resource index*, *resource details*, *app settings*), IBM Carbon (*data table*), Radix Colors (papel de cada passo), Refactoring UI.

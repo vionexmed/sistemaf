@@ -14,7 +14,7 @@ function DropdownMenuContent({ className, sideOffset = 4, ...props }: React.Comp
       <P.Content
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-44 overflow-hidden rounded-md border bg-surface p-1 text-base text-foreground shadow-overlay",
+          "z-50 min-w-48 overflow-hidden rounded-lg bg-surface p-1 text-base text-foreground shadow-overlay",
           className,
         )}
         {...props}
@@ -31,7 +31,7 @@ function DropdownMenuItem({
   return (
     <P.Item
       className={cn(
-        "relative flex h-8 cursor-default items-center gap-2 rounded-sm px-2 outline-none select-none data-[disabled]:opacity-50 data-[highlighted]:bg-hover [&_svg]:size-4 [&_svg]:stroke-[1.75] [&_svg]:text-muted-foreground",
+        "relative flex h-8 cursor-default items-center gap-2 rounded-md px-2 outline-none select-none data-[disabled]:opacity-50 data-[highlighted]:bg-hover [&_svg]:size-4 [&_svg]:stroke-[1.75] [&_svg]:text-muted-foreground",
         destrutivo && "text-erro-11 [&_svg]:text-erro-11",
         className,
       )}
@@ -56,7 +56,7 @@ function DropdownMenuRadioItem({ className, children, ...props }: React.Componen
   return (
     <P.RadioItem
       className={cn(
-        "relative flex h-8 cursor-default items-center gap-2 rounded-sm pr-2 pl-7 outline-none select-none data-[highlighted]:bg-hover",
+        "relative flex h-8 cursor-default items-center gap-2 rounded-md pr-2 pl-7 outline-none select-none data-[highlighted]:bg-hover",
         className,
       )}
       {...props}

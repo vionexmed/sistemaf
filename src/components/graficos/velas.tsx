@@ -12,7 +12,7 @@ export function Velas({ velas, hoje, className }: { velas: Vela[]; hoje: string;
   return (
     <figure className={cn("flex flex-col gap-2", className)}>
       <figcaption className="flex items-baseline justify-between text-sm">
-        <span className="text-muted-foreground">Últimos {velas.length} dias</span>
+        <span className="text-muted-foreground">{velas.length} dias</span>
         <span className="font-semibold tabular">{total} {total === 1 ? "atendimento" : "atendimentos"}</span>
       </figcaption>
       <div className="flex items-end gap-1" style={{ height: altura }} role="img" aria-label={`${total} atendimentos nos últimos ${velas.length} dias`}>

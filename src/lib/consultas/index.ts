@@ -15,7 +15,7 @@ export const hoje = cache(() => hojeISO());
 
 export const listarAtletas = cache(async (incluirInativos = false): Promise<Atleta[]> => {
   const db = await banco();
-  const q = db.select().from(schema.atletas).orderBy(asc(schema.atletas.camisa));
+  const q = db.select().from(schema.atletas).orderBy(asc(schema.atletas.nome));
   return incluirInativos ? q : q.where(eq(schema.atletas.ativo, true));
 });
 

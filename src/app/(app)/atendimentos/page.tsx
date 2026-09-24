@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ClipboardList, Download, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ClipboardList, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Kbd, Tooltip } from "@/components/ui/tooltip";
 import { CabecalhoPagina } from "@/components/cabecalho-pagina";
 import { EstadoVazio, SemResultados } from "@/components/estados";
 import { BarraDeFiltros, Visoes } from "@/components/indice/filtros";
@@ -15,7 +14,6 @@ import { ehDataISO, fmtDiaExtenso, fmtDiaMes, fmtInstante, haQuanto, somarDias }
 import { filtrarAtendimentos, janelaDaVisao, VISOES_ATENDIMENTO, type VisaoAtendimento } from "@/lib/dominio/filtros";
 import { inteiro, lista, normalizar, paginar, texto, umDe, type Params } from "@/lib/parametros";
 import { permissoes, usuarioAtual } from "@/lib/sessao";
-import { plural } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Atendimentos" };
 
@@ -41,7 +39,7 @@ export default async function PaginaAtendimentos({ searchParams }: { searchParam
   const filtrados = filtrarAtendimentos(todos, filtros).filter((a) => {
     if (!busca) return true;
     const atleta = atletas.get(a.atletaId);
-    return atleta != null && normalizar(`${atleta.nome} ${atleta.apelido} ${atleta.camisa}`).includes(busca);
+    return atleta != null && normalizar(`${atleta.nome} ${atleta.apelido} ${atleta.camisa ?? ""}`).includes(busca);
   });
   const filtroAtivo = busca !== "" || Object.values(filtros).some((f) => f.length > 0);
   const { itens, pagina, totalPaginas } = paginar(filtrados, inteiro(p, "pagina", 1));
@@ -78,81 +76,71 @@ export default async function PaginaAtendimentos({ searchParams }: { searchParam
   const diaSeguinte = somarDias(dia, 1) === h ? "/atendimentos" : `/atendimentos?data=${somarDias(dia, 1)}`;
 
   return (
-    <div className="mx-auto flex max-w-wide flex-col gap-4">
+    <div className="mx-auto flex max-w-wide flex-col gap-6">
       {visao === "hoje" && dia === h && <AtualizarSozinho />}
       <CabecalhoPagina
-        titulo="Atendimentos"
+        titulo={visao === "hoje" && dia === h ? "Atendimentos de hoje" : "Atendimentos"}
         contagem={filtrados.length}
         descricao={
           <>
             {visao === "hoje" || visao === "ontem" ? fmtDiaExtenso(janela.de) : tituloVisao}
-            {" · "}
-            {plural(emTratamento, "em tratamento", "em tratamento")} · {plural(queixa, "queixa pós-treino", "queixa pós-treino")}
-          </>
-        }
-        acoes={
-          <>
-            <Button variant="secondary" asChild>
-              <a href={exportarHref}>
-                <Download /> Exportar
-              </a>
-            </Button>
-            {pode.editar && (
-              <Tooltip conteudo={<>Registrar atendimento <Kbd>N</Kbd></>}>
-                <Button asChild>
-                  <Link href="/atendimentos/novo">
-                    <Plus /> Registrar atendimento
-                  </Link>
-                </Button>
-              </Tooltip>
+            {filtrados.length > 0 && (
+              <>
+                {" · "}
+                {emTratamento} em tratamento · {queixa} queixa pós-treino
+              </>
             )}
           </>
         }
+        acoes={
+          <Button variant="secondary" asChild>
+            <a href={exportarHref}>
+              <Download /> Exportar
+            </a>
+          </Button>
+        }
       />
 
-      <Card className="overflow-hidden">
-        <div className="px-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Visoes opcoes={VISOES_ATENDIMENTO} padrao="hoje" />
-          <BarraDeFiltros
-            filtros={[
-              { chave: "periodo", rotulo: "Período", opcoes: PERIODOS_DIA },
-              { chave: "status", rotulo: "Status", opcoes: STATUS_ATENDIMENTO },
-              { chave: "hd", rotulo: "HD", opcoes: HD },
-              { chave: "local", rotulo: "Local da queixa", opcoes: REGIOES },
-              { chave: "objetivo", rotulo: "Objetivo", opcoes: OBJETIVOS },
-            ]}
-            extra={
-              visao === "hoje" && (
-                <div className="ml-auto flex items-center gap-1">
-                  <Button variant="ghost" size="icon-sm" asChild>
-                    <Link href={diaAnterior} aria-label="Dia anterior"><ChevronLeft /></Link>
-                  </Button>
-                  <span className="min-w-12 text-center text-sm font-medium tabular">{tituloVisao}</span>
-                  <Button variant="ghost" size="icon-sm" asChild aria-disabled={dia === h} className={dia === h ? "pointer-events-none opacity-50" : ""}>
-                    <Link href={diaSeguinte} aria-label="Dia seguinte"><ChevronRight /></Link>
-                  </Button>
-                </div>
-              )
-            }
-          />
+          {visao === "hoje" && (
+            <div className="flex items-center gap-1 rounded-full bg-hover p-0.5">
+              <Button variant="ghost" size="icon-sm" className="rounded-full" asChild>
+                <Link href={diaAnterior} aria-label="Dia anterior"><ChevronLeft /></Link>
+              </Button>
+              <span className="min-w-12 text-center text-sm font-medium tabular">{tituloVisao}</span>
+              <Button variant="ghost" size="icon-sm" asChild aria-disabled={dia === h} className={dia === h ? "pointer-events-none rounded-full opacity-40" : "rounded-full"}>
+                <Link href={diaSeguinte} aria-label="Dia seguinte"><ChevronRight /></Link>
+              </Button>
+            </div>
+          )}
         </div>
+        <BarraDeFiltros
+          filtros={[
+            { chave: "periodo", rotulo: "Período", opcoes: PERIODOS_DIA },
+            { chave: "status", rotulo: "Status", opcoes: STATUS_ATENDIMENTO },
+            { chave: "hd", rotulo: "HD", opcoes: HD },
+            { chave: "local", rotulo: "Local da queixa", opcoes: REGIOES },
+            { chave: "objetivo", rotulo: "Objetivo", opcoes: OBJETIVOS },
+          ]}
+        />
+      </div>
+
+      <Card className="overflow-hidden">
         {todos.length === 0 ? (
-          <div className="border-t">
-            <EstadoVazio
-              icone={ClipboardList}
-              frase={visao === "hoje" ? "Nenhum atendimento registrado neste dia." : "Nenhum atendimento neste período."}
-              acao={pode.editar ? { rotulo: "Registrar atendimento", href: "/atendimentos/novo" } : undefined}
-            />
-          </div>
+          <EstadoVazio
+            icone={ClipboardList}
+            frase={visao === "hoje" ? "Nenhum atendimento registrado neste dia." : "Nenhum atendimento neste período."}
+            acao={pode.editar ? { rotulo: "Registrar atendimento", href: "/atendimentos/novo" } : undefined}
+          />
         ) : filtrados.length === 0 && filtroAtivo ? (
-          <div className="border-t">
-            <SemResultados limparHref={visao === "hoje" ? (dia === h ? "/atendimentos" : `/atendimentos?data=${dia}`) : `/atendimentos?visao=${visao}`} />
-          </div>
+          <SemResultados limparHref={visao === "hoje" ? (dia === h ? "/atendimentos" : `/atendimentos?data=${dia}`) : `/atendimentos?visao=${visao}`} />
         ) : (
-          <div className="border-t">
-            <TabelaAtendimentos linhas={linhas} podeEditar={pode.editar} mostrarData={visao !== "hoje" && visao !== "ontem"} exportarHref={exportarHref} />
+          <>
+            <TabelaAtendimentos linhas={linhas} podeEditar={pode.editar} mostrarData={visao !== "hoje" && visao !== "ontem"} />
             <Paginacao pagina={pagina} totalPaginas={totalPaginas} total={filtrados.length} />
-          </div>
+          </>
         )}
       </Card>
     </div>

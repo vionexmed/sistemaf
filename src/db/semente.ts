@@ -9,10 +9,11 @@ import { periodoTemporadaDaData } from "../lib/dominio/metricas";
 
 type Banco = PgDatabase<PgQueryResultHKT, typeof schema>;
 
-const ELENCO: [nome: string, apelido: string, camisa: number, posicao: string, pe: string][] = [
+// Camisa é opcional: alguns jogadores da base ainda não têm número.
+const ELENCO: [nome: string, apelido: string, camisa: number | null, posicao: string, pe: string][] = [
   ["Diego Carvalho Lima", "Diego", 1, "goleiro", "destro"],
   ["Marcos Vinícius Teles", "Marcão", 12, "goleiro", "destro"],
-  ["Pedro Henrique Sales", "Pedro Sales", 23, "goleiro", "canhoto"],
+  ["Pedro Henrique Sales", "Pedro Sales", null, "goleiro", "canhoto"],
   ["Lucas Ferreira Prado", "Lucas Prado", 3, "zagueiro", "destro"],
   ["Anderson Rocha", "Anderson", 4, "zagueiro", "destro"],
   ["Gabriel Nunes Barros", "Gabriel", 14, "zagueiro", "canhoto"],
@@ -36,8 +37,8 @@ const ELENCO: [nome: string, apelido: string, camisa: number, posicao: string, p
   ["Rafael Moura", "Rafael", 9, "atacante", "destro"],
   ["Henrique Cardoso", "Henrique", 21, "atacante", "destro"],
   ["Alan Siqueira", "Alan", 26, "atacante", "canhoto"],
-  ["Nicolas Farias", "Nicolas", 29, "atacante", "destro"],
-  ["Everton Luz", "Everton", 30, "atacante", "destro"],
+  ["Nicolas Farias", "Nicolas", null, "atacante", "destro"],
+  ["Everton Luz", "Everton", null, "atacante", "destro"],
 ];
 
 const EVOLUCOES = [

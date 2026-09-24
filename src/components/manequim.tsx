@@ -38,7 +38,7 @@ function posicao(regiao: string, lado: LadoCorpo, vista: Vista): Ancora | null {
 
 /** Partes do corpo. `modo` decide se desenha contorno (mais grosso), preenchimento ou máscara. */
 function Corpo({ modo }: { modo: "contorno" | "pele" | "mascara" }) {
-  const cor = modo === "contorno" ? "var(--slate-8)" : modo === "pele" ? "var(--slate-4)" : "#fff";
+  const cor = modo === "contorno" ? "var(--gray-8)" : modo === "pele" ? "var(--gray-4)" : "#fff";
   const extra = modo === "contorno" ? 1.6 : 0;
   const forma = { fill: cor, stroke: modo === "contorno" ? cor : "none", strokeWidth: extra, strokeLinejoin: "round" as const };
   const membro = (largura: number) => ({ stroke: cor, strokeWidth: largura + extra, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" });
@@ -96,26 +96,26 @@ export function Manequim({
             <Corpo modo="mascara" />
           </mask>
           <radialGradient id={`gf${id}`}>
-            <stop offset="0%" style={{ stopColor: "var(--indigo-9)", stopOpacity: 0.95 }} />
-            <stop offset="55%" style={{ stopColor: "var(--indigo-9)", stopOpacity: 0.55 }} />
-            <stop offset="100%" style={{ stopColor: "var(--indigo-9)", stopOpacity: 0 }} />
+            <stop offset="0%" style={{ stopColor: "var(--chart-1)", stopOpacity: 0.95 }} />
+            <stop offset="55%" style={{ stopColor: "var(--chart-1)", stopOpacity: 0.55 }} />
+            <stop offset="100%" style={{ stopColor: "var(--chart-1)", stopOpacity: 0 }} />
           </radialGradient>
           <radialGradient id={`gs${id}`}>
-            <stop offset="0%" style={{ stopColor: "var(--indigo-7)", stopOpacity: 0.9 }} />
-            <stop offset="100%" style={{ stopColor: "var(--indigo-7)", stopOpacity: 0 }} />
+            <stop offset="0%" style={{ stopColor: "var(--blue-7)", stopOpacity: 0.9 }} />
+            <stop offset="100%" style={{ stopColor: "var(--blue-7)", stopOpacity: 0 }} />
           </radialGradient>
           <linearGradient id={`pele${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" style={{ stopColor: "var(--slate-3)" }} />
-            <stop offset="100%" style={{ stopColor: "var(--slate-5)" }} />
+            <stop offset="0%" style={{ stopColor: "var(--gray-2)" }} />
+            <stop offset="100%" style={{ stopColor: "var(--gray-4)" }} />
           </linearGradient>
         </defs>
         <Corpo modo="contorno" />
         <Corpo modo="pele" />
         <rect x={0} y={0} width={100} height={220} fill={`url(#pele${id})`} mask={`url(#m${id})`} />
         {vista === "frente" ? (
-          <path d="M44 33 Q50 38 56 33" fill="none" stroke="var(--slate-8)" strokeWidth={0.8} />
+          <path d="M44 33 Q50 38 56 33" fill="none" stroke="var(--gray-8)" strokeWidth={0.8} />
         ) : (
-          <line x1={50} y1={34} x2={50} y2={108} stroke="var(--slate-8)" strokeWidth={0.8} strokeDasharray="1.5 2.5" />
+          <line x1={50} y1={34} x2={50} y2={108} stroke="var(--gray-8)" strokeWidth={0.8} strokeDasharray="1.5 2.5" />
         )}
         <g mask={`url(#m${id})`}>
           {brilhos.map((b) => (
@@ -123,7 +123,7 @@ export function Manequim({
           ))}
         </g>
         {contornos.map((c) => (
-          <circle key={c.chave} cx={c.x} cy={c.y} r={c.r + 2} fill="none" stroke="var(--indigo-11)" strokeWidth={0.9} strokeDasharray="2 1.5" />
+          <circle key={c.chave} cx={c.x} cy={c.y} r={c.r + 2} fill="none" stroke="var(--gray-12)" strokeWidth={0.9} strokeDasharray="2 1.5" />
         ))}
         {aoEscolher &&
           Object.keys(ANCORAS).flatMap((regiao) =>
@@ -138,7 +138,7 @@ export function Manequim({
                   cy={p.y}
                   r={p.r}
                   fill="transparent"
-                  className="cursor-pointer outline-none hover:fill-[var(--indigo-a4)] focus-visible:stroke-[var(--indigo-9)]"
+                  className="cursor-pointer outline-none hover:fill-[var(--gray-a4)] focus-visible:stroke-[var(--chart-1)]"
                   strokeWidth={0.8}
                   role="button"
                   tabIndex={0}

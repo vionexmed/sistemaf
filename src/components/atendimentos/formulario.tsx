@@ -114,7 +114,7 @@ export function FormularioAtendimento({
         )}
 
         <Card>
-          <CardHeader titulo="1. Atleta" descricao="A posição vem do cadastro. Data e período entram sozinhos." />
+          <CardHeader titulo="1. Atleta" />
           <CardContent className="flex flex-col gap-4">
             <Campo rotulo="Atleta" htmlFor="atleta" erro={erros.atletaId}>
               <SeletorAtleta id="atleta" atletas={atletas} valor={v.atletaId} aoMudar={escolherAtleta} invalido={!!erros.atletaId} autoAbrir={!editando && !inicial.atletaId} />
@@ -158,7 +158,7 @@ export function FormularioAtendimento({
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-2 border-t bg-background px-4 py-3 md:-mx-6 md:px-6">
+        <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-2 border-t bg-surface px-4 py-3 md:-mx-8 md:px-8">
           <Button variant="ghost" asChild>
             <Link href={editando ? `/jogadores/${v.atletaId}?aba=atendimentos` : "/atendimentos"}>Cancelar</Link>
           </Button>
@@ -173,26 +173,29 @@ export function FormularioAtendimento({
         </div>
       </div>
 
-      <aside className="flex flex-col gap-4">
-        <Card>
-          <CardHeader titulo={atleta ? `${atleta.apelido} · últimos 14 dias` : "Últimos 14 dias"} />
-          <CardContent>
-            {ctx ? <Velas velas={ctx.velas} hoje={hoje} /> : <p className="text-sm text-muted-foreground">Escolha o atleta para ver o histórico.</p>}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader titulo="Último atendimento" />
-          <CardContent>
+      <aside>
+        <Card className="lg:sticky lg:top-16">
+          <CardHeader titulo={atleta ? `Histórico do ${atleta.apelido}` : "Histórico"} />
+          <CardContent className="flex flex-col gap-6">
             {!ctx ? (
-              <p className="text-sm text-muted-foreground">—</p>
-            ) : ctx.ultimo ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-muted-foreground">{ctx.ultimo.quando}</p>
-                <p className="text-base">{ctx.ultimo.resumo.split(" · ").slice(0, 3).join(" · ")}</p>
-                <StatusBadge status={ctx.ultimo.status} />
-              </div>
+              <p className="text-sm text-muted-foreground">Escolha o atleta para ver os últimos 14 dias e o último atendimento.</p>
             ) : (
-              <p className="text-sm text-muted-foreground">Primeiro atendimento deste atleta.</p>
+              <>
+                <Velas velas={ctx.velas} hoje={hoje} />
+                <div className="flex flex-col gap-2 border-t pt-4">
+                  <p className="text-xs font-medium text-faint-foreground">Último atendimento</p>
+                  {ctx.ultimo ? (
+                    <>
+                      <p className="text-base">{ctx.ultimo.resumo.split(" · ").slice(0, 3).join(" · ")}</p>
+                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <StatusBadge status={ctx.ultimo.status} /> {ctx.ultimo.quando}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Primeiro atendimento deste atleta.</p>
+                  )}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

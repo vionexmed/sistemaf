@@ -17,7 +17,7 @@ export type LinhaLesao = {
   id: number;
   atletaId: number;
   nome: string;
-  camisa: number;
+  camisa: number | null;
   foto: string | null;
   posicao: string;
   dia: string;

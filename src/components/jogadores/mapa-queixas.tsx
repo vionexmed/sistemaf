@@ -49,10 +49,10 @@ export function MapaQueixas({ regioes }: { regioes: RegiaoMapa[] }) {
                 aria-pressed={sel === r.regiao}
                 className={cn(
                   "flex h-11 w-full items-center gap-3 rounded-md px-2 text-left transition-colors duration-150 hover:bg-hover",
-                  sel === r.regiao && "bg-selected hover:bg-selected",
+                  sel === r.regiao && "bg-hover",
                 )}
               >
-                <span className={cn("size-2 shrink-0 rounded-full", r.atual ? "bg-acento-9" : "bg-acento-6")} aria-hidden />
+                <span className={cn("size-2 shrink-0 rounded-full", r.atual ? "bg-chart-1" : "bg-[var(--blue-7)]")} aria-hidden />
                 <span className="min-w-0 flex-1 leading-tight">
                   <span className="block truncate font-medium">{r.nome}</span>
                   <span className="block truncate text-xs text-muted-foreground">
@@ -70,8 +70,8 @@ export function MapaQueixas({ regioes }: { regioes: RegiaoMapa[] }) {
           </p>
         )}
         <div className="flex gap-4 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-acento-9" /> Queixa atual</span>
-          <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-acento-6" /> Antiga</span>
+          <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-chart-1" /> Queixa atual</span>
+          <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-[var(--blue-7)]" /> Antiga</span>
           <span className="ml-auto">nº de atendimentos</span>
         </div>
       </div>

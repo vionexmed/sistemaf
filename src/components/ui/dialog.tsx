@@ -14,10 +14,10 @@ function DialogContent({
 }: React.ComponentProps<typeof P.Content> & { titulo: string }) {
   return (
     <P.Portal>
-      <P.Overlay className="fixed inset-0 z-50 bg-black/40" />
+      <P.Overlay className="fixed inset-0 z-50 bg-black/20 backdrop-blur-[1px]" />
       <P.Content
         className={cn(
-          "fixed top-24 left-1/2 z-50 w-[calc(100%-32px)] max-w-xl -translate-x-1/2 overflow-hidden rounded-md border bg-surface shadow-overlay",
+          "fixed top-24 left-1/2 z-50 w-[calc(100%-32px)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-surface shadow-overlay",
           className,
         )}
         {...props}

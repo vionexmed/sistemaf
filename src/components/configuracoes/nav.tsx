@@ -19,7 +19,7 @@ export function NavConfiguracoes() {
           key={i.href}
           href={i.href}
           aria-current={pathname === i.href ? "page" : undefined}
-          className={cn("flex h-8 items-center rounded-md px-2 text-sm hover:bg-hover", pathname === i.href && "bg-selected font-medium text-acento-11 hover:bg-selected")}
+          className={cn("flex h-8 items-center rounded-md px-2 text-sm hover:bg-hover", pathname === i.href && "bg-hover font-medium text-foreground hover:bg-selected")}
         >
           {i.rotulo}
         </Link>

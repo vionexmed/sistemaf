@@ -24,7 +24,7 @@ function Tooltip({
         <P.Content
           side={lado}
           sideOffset={4}
-          className={cn("z-50 rounded-sm bg-foreground px-2 py-1 text-xs text-surface shadow-overlay")}
+          className={cn("z-50 rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground")}
         >
           {conteudo}
         </P.Content>

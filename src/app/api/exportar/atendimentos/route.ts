@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     .filter((a) => ids.size === 0 || ids.has(a.id))
     .filter((a) => {
       const at = atletas.get(a.atletaId);
-      return !busca || (at != null && normalizar(`${at.nome} ${at.apelido} ${at.camisa}`).includes(busca));
+      return !busca || (at != null && normalizar(`${at.nome} ${at.apelido} ${at.camisa ?? ""}`).includes(busca));
     })
     .sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : a.periodo.localeCompare(b.periodo)));
 

@@ -1,6 +1,6 @@
 import { cn, iniciais } from "@/lib/utils";
 
-// Foto quadrada com raio 8px; sem foto, iniciais em slate 11 sobre slate 3.
+// Foto redonda; sem foto, iniciais em cinza 11 sobre cinza 3.
 function Avatar({
   nome,
   foto,
@@ -16,7 +16,7 @@ function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-hover font-medium text-muted-foreground",
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--gray-a3)] font-medium text-muted-foreground",
         tamanhos[tamanho],
         className,
       )}

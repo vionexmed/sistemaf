@@ -4,7 +4,7 @@ import * as React from "react";
 import { ToggleGroup as P } from "radix-ui";
 import { cn } from "@/lib/utils";
 
-// Opções da planilha como botões de um toque. Selecionado = acento passo 3, borda passo 8.
+// Opções da planilha como botões de um toque (pílulas). Selecionado = tinta cheia, fácil de ver de longe.
 type Opcao = { readonly valor: string; readonly rotulo: string };
 
 function Opcoes({
@@ -39,9 +39,9 @@ function Opcoes({
             key={o.valor}
             value={o.valor}
             className={cn(
-              "h-9 rounded-md border border-input bg-surface px-3 text-base text-foreground transition-colors duration-150 hover:bg-hover",
-              "data-[state=on]:border-selected-border data-[state=on]:bg-selected data-[state=on]:font-medium data-[state=on]:text-acento-11",
-              invalido && "border-erro-9",
+              "h-9 rounded-full bg-surface px-4 text-base text-foreground shadow-ativo transition-colors duration-150 hover:bg-subtle",
+              "data-[state=on]:bg-primary data-[state=on]:font-medium data-[state=on]:text-primary-foreground data-[state=on]:shadow-none",
+              invalido && "shadow-[0_0_0_1px_var(--red-8)]",
             )}
           >
             {o.rotulo}

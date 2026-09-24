@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils";
 
 // Badge pequena: fundo passo 3, texto passo 11, ponto passo 9.
 const badgeVariants = cva(
-  "inline-flex w-fit items-center gap-1 rounded-sm px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+  "inline-flex h-5 w-fit items-center gap-1.5 rounded-full px-2 text-xs font-medium whitespace-nowrap",
   {
     variants: {
       tom: {
         neutro: "bg-hover text-muted-foreground",
-        acento: "bg-acento-3 text-acento-11",
+        solido: "bg-primary text-primary-foreground",
+        acento: "bg-info-3 text-info-11",
         info: "bg-info-3 text-info-11",
         ok: "bg-ok-3 text-ok-11",
         aviso: "bg-aviso-3 text-aviso-11",
@@ -22,7 +23,8 @@ const badgeVariants = cva(
 
 const pontoTom = {
   neutro: "bg-muted-foreground",
-  acento: "bg-acento-9",
+  solido: "bg-primary-foreground",
+  acento: "bg-info-9",
   info: "bg-info-9",
   ok: "bg-ok-9",
   aviso: "bg-aviso-9",

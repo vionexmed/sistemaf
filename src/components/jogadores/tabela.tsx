@@ -12,7 +12,7 @@ import { CabecalhoOrdenavel } from "@/components/indice/ordenar";
 
 export type LinhaJogador = {
   id: number;
-  camisa: number;
+  camisa: number | null;
   nome: string;
   apelido: string;
   foto: string | null;
@@ -27,11 +27,10 @@ export function TabelaJogadores({ linhas, podeEditar }: { linhas: LinhaJogador[]
     <Table>
       <TableHeader>
         <TableRow className="h-9">
-          <TableHead numero className="w-16"><CabecalhoOrdenavel campo="camisa" padrao="camisa" numero>Nº</CabecalhoOrdenavel></TableHead>
-          <TableHead><CabecalhoOrdenavel campo="nome" padrao="camisa">Jogador</CabecalhoOrdenavel></TableHead>
-          <TableHead><CabecalhoOrdenavel campo="status" padrao="camisa">Status</CabecalhoOrdenavel></TableHead>
+          <TableHead><CabecalhoOrdenavel campo="nome" padrao="nome">Jogador</CabecalhoOrdenavel></TableHead>
+          <TableHead><CabecalhoOrdenavel campo="status" padrao="nome">Status</CabecalhoOrdenavel></TableHead>
           <TableHead>Posição</TableHead>
-          <TableHead numero><CabecalhoOrdenavel campo="idade" padrao="camisa" numero>Idade</CabecalhoOrdenavel></TableHead>
+          <TableHead numero><CabecalhoOrdenavel campo="idade" padrao="nome" numero>Idade</CabecalhoOrdenavel></TableHead>
           <TableHead className="w-12"><span className="sr-only">Ações</span></TableHead>
         </TableRow>
       </TableHeader>
@@ -45,13 +44,12 @@ export function TabelaJogadores({ linhas, podeEditar }: { linhas: LinhaJogador[]
               router.push(`/jogadores/${j.id}`);
             }}
           >
-            <TableCell numero className="text-muted-foreground">{j.camisa}</TableCell>
             <TableCell>
               <Link href={`/jogadores/${j.id}`} className="flex items-center gap-3">
                 <Avatar nome={j.nome} foto={j.foto} tamanho={32} />
                 <span className="min-w-0 leading-tight">
                   <span className="block truncate font-medium hover:underline">{j.nome}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{j.apelido}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{j.apelido}{j.camisa != null && ` · #${j.camisa}`}</span>
                 </span>
               </Link>
             </TableCell>

@@ -24,8 +24,8 @@ O prompt original descrevia o visual do MVP antigo (azul-marinho, amarelo, Barlo
 | Parte | Escolha | Por quê |
 |---|---|---|
 | App | Next.js 16 (App Router, Server Components, Server Actions), React 19, TypeScript | telas renderizadas no servidor já com os números calculados; gravação sem API separada |
-| UI | Tailwind CSS v4 + componentes shadcn/ui em `src/components/ui` (Radix UI por baixo), `cmdk` para a barra de comando, `sonner` para toasts | design system único exigido pelos presets |
-| Cor | `@radix-ui/colors` (slate, indigo, blue, green, amber, red) | escalas de 12 passos com papel fixo e modo escuro |
+| UI | Tailwind CSS v4 + fonte Geist + componentes shadcn/ui em `src/components/ui` (Radix UI por baixo), `cmdk` para a barra de comando, `sonner` para toasts | design system único exigido pelos presets |
+| Cor | `@radix-ui/colors` (gray, blue, green, amber, red) + tinta `#171717` e azul do clube `#1f4f9c` | escalas de 12 passos com papel fixo e modo escuro |
 | Ícones | `lucide-react` | |
 | Banco | PostgreSQL via Drizzle ORM. Desenvolvimento: PGlite (Postgres embutido em `.data/pglite`). Produção: `DATABASE_URL` | mesmo dialeto nos dois ambientes; migrações versionadas em `drizzle/` |
 | Validação | `zod` nas Server Actions | |
@@ -132,10 +132,11 @@ Enquanto não existe login, o menu do usuário tem "Trocar perfil (demonstraçã
 
 ## Navegação
 
-- Navegação lateral com: **Trabalho** (Atendimentos, Jogadores, Lesões), **Análise** (Painel), **Sistema** (Configurações, só Fisioterapia). O usuário logado e o perfil ficam no rodapé.
-- Topo: caminho de navegação clicável ("Jogadores / Rafael Moura"), busca de jogador (abre a barra de comando), notificações e usuário.
-- **Registrar atendimento** é a ação principal do sistema. Fica no cabeçalho de Atendimentos e da ficha do jogador (na ficha já abre com ele escolhido: "Registrar atendimento do Rafael"), no atalho `N` e na barra de comando. Nunca duas vezes na mesma tela.
-- **Barra de comando (Ctrl/Cmd+K):** busca jogador por nome, apelido ou camisa; vai para qualquer tela; dispara Registrar atendimento, Registrar lesão e Adicionar jogador.
+- **Lateral:** escudo e nome do clube, o botão preto **Registrar atendimento**, "Buscar jogador" e 4 itens: Atendimentos, Jogadores, Lesões, Painel (com contadores discretos: atendimentos de hoje, afastados, lesões em aberto).
+- **Menu do perfil** (avatar no canto superior direito): Configurações, tema claro/escuro, trocar perfil (demonstração) e Sair.
+- Topo: caminho de navegação clicável ("Jogadores / Rafael Moura"), Avisos e o menu do perfil.
+- **Registrar atendimento** é a ação principal do sistema e fica **sempre no mesmo lugar**: o botão preto no topo da lateral, em todas as telas. Na ficha de um jogador ele vira "Atendimento do Rafael" e já abre com ele escolhido. Também no atalho `N` e na barra de comando. Nenhuma tela repete esse botão.
+- **Barra de comando (Ctrl/Cmd+K):** busca jogador por nome ou apelido (a camisa também acha, quando existe); vai para qualquer tela; dispara Registrar atendimento, Registrar lesão e Adicionar jogador.
 - **Celular:** só a tela de registrar atendimento, sem navegação, para a fisio usar na sala. Abrir o sistema no celular leva direto para ela.
 
 ```mermaid
@@ -153,11 +154,10 @@ flowchart LR
 
 A planilha diária virada tela. Abre na visão **Hoje**: todos os atendimentos registrados no dia, em tempo real (a lista se atualiza sozinha a cada 20 s e ao voltar para a aba).
 
-- **Cabeçalho:** "Atendimentos" com a contagem, a data por extenso ("Quarta-feira, 23 de setembro") e o resumo "6 em tratamento · 3 queixa pós-treino". Ação primária: **Registrar atendimento**. Secundária: Exportar (CSV).
+- **Cabeçalho:** "Atendimentos" com a contagem, a data por extenso ("Quarta-feira, 23 de setembro") e o resumo "6 em tratamento · 3 queixa pós-treino". Ação: Exportar (CSV). Registrar atendimento é o botão da lateral.
 - **Visões:** Hoje, Ontem, 7 dias, Temporada. Na visão Hoje, setas para o dia anterior e o seguinte (`?data=2026-09-22`).
 - **Filtros:** período (matutino, vespertino), status, HD, local, objetivo; busca por atleta.
-- **Tabela** com as colunas da planilha: camisa, atleta, posição, HD, local da queixa, objetivo do trabalho, status, período e registrado há. Clicar na linha abre a ficha. `···`: Editar, Excluir (Fisioterapia).
-- **Seleção em massa:** Exportar selecionados; Excluir (Fisioterapia, com confirmação que diz quantos).
+- **Tabela** com as colunas da planilha: atleta, status, posição, HD, local da queixa, objetivo do trabalho, status, período e registrado há. Clicar na linha abre a ficha. `···`: Editar, Excluir (Fisioterapia).
 
 ## Tela: Registrar atendimento
 
@@ -167,7 +167,7 @@ A tela mais usada e a que alimenta todo o resto. Deve ser concluída em 2 ou 3 t
 
 Grupos, nesta ordem:
 
-1. **Atleta:** atleta (busca por nome ou camisa), data do atendimento e período. A posição aparece sozinha, vinda do cadastro.
+1. **Atleta:** atleta (busca por nome ou apelido), data do atendimento e período. A posição aparece sozinha, vinda do cadastro.
 2. **Queixa:** HD (tendinopatia, DMT, contratura, entorse, lesão muscular, outro) e local da queixa (joelho, posterior de coxa, anterior de coxa, panturrilha, adutor, lombar, tornozelo, quadril, ombro, pé, outro), como botões de opção.
 3. **Trabalho de hoje:** objetivo do trabalho (força muscular, estabilidade, relaxamento Mm., HIIT + CORE, potência, cardio (volume), recovery), status (em tratamento ou queixa pós-treino) e a evolução do dia em texto livre (opcional).
 
@@ -187,28 +187,28 @@ Grupos, nesta ordem:
 
 O elenco, feito para achar um jogador rápido. Só identifica e mostra o status; a análise fica na ficha.
 
-- **Cabeçalho:** "Jogadores" com a contagem do elenco. Ação primária: **Adicionar jogador** (Fisioterapia).
+- **Cabeçalho:** "Jogadores" com a contagem do elenco. Ação: **Adicionar jogador** (Fisioterapia).
 - **Visões:** Todos, Goleiros, Defensores, Meio-campistas, Atacantes, Afastados, Fora do elenco. Grupos: goleiro → Goleiros; zagueiro e lateral → Defensores; volante e meia → Meio-campistas; extremo e atacante → Atacantes.
-- **Busca** por nome, apelido ou camisa.
-- **Tabela:** camisa, jogador (foto + nome + apelido), posição, status, idade. Clicar abre a ficha. `···`: Abrir ficha, Editar, Registrar lesão.
+- **Busca** por nome ou apelido.
+- **Tabela:** jogador (foto + nome + apelido e, se houver, a camisa), status, posição, idade. Ordem alfabética. Clicar abre a ficha. `···`: Abrir ficha, Editar, Registrar lesão.
 - Não mostrar gráficos nem contagens por jogador aqui.
 
 ## Tela: Adicionar jogador
 
 Cadastro em 3 etapas, uma de cada vez, com indicador de progresso e botões Voltar e Continuar. Na última etapa, "Salvar jogador".
 
-1. **Quem é:** foto, nome completo, nome na camisa e data de nascimento.
-2. **No time:** número da camisa (não pode repetir entre jogadores ativos), posição (goleiro, zagueiro, lateral, volante, meia, extremo, atacante), altura, peso e pé dominante (destro, canhoto, ambidestro).
+1. **Quem é:** foto, nome completo, apelido (como ele é chamado) e data de nascimento.
+2. **No time:** número da camisa (**opcional**; quando informado, não pode repetir entre jogadores ativos), posição (goleiro, zagueiro, lateral, volante, meia, extremo, atacante), altura, peso e pé dominante (destro, canhoto, ambidestro).
 3. **Saúde (opcional):** alergias ou medicamentos de uso contínuo, lesões anteriores e exames admissionais, que vão direto para a pasta do jogador.
 
-- Ao lado, uma prévia de como o jogador vai aparecer na lista (foto, nome, camisa, posição), atualizada enquanto a fisio digita.
+- Ao lado, uma prévia de como o jogador vai aparecer na lista (foto, nome, apelido, posição e camisa, se houver), atualizada enquanto a fisio digita.
 - Ao salvar: toast "Rafael foi adicionado. Ele já aparece na lista de jogadores." e redireciona para a ficha.
 
 ## Tela: Ficha do jogador
 
 Tudo sobre um jogador, dividido em abas. Cada informação aparece em uma aba só.
 
-**Cabeçalho:** voltar para Jogadores, foto, nome, camisa, status. Ações: **Registrar atendimento do [apelido]** (primária), Relatório (secundária), `···` com Registrar lesão, Editar cadastro e Trocar jogador. Clicar na foto troca a foto (Fisioterapia).
+**Cabeçalho:** foto, nome, camisa (se houver) e status. Ações: Relatório e `···` (Registrar lesão, Editar cadastro). O registro de atendimento é o botão da lateral, que na ficha já vem com o jogador. Para ir a outro jogador, "Buscar jogador" na lateral. Clicar na foto troca a foto (Fisioterapia).
 
 **Abas:** Visão geral, Atendimentos, Lesões, Testes, Documentos (a aba fica na URL).
 
@@ -248,7 +248,7 @@ Pasta do jogador com as pastas Exames de imagem, Laudos, Avaliações e Outros (
 
 A planilha de lesões do elenco virada tela.
 
-- **Cabeçalho:** "Lesões" com a contagem e a linha de resumo calculada da lista filtrada: "12 lesões · 3 em aberto · reincidência 17% · afastamento médio 12 dias · 180 dias perdidos". Ação primária: **Registrar lesão**. Secundária: Exportar (CSV).
+- **Cabeçalho:** "Lesões" com a contagem e a linha de resumo calculada da lista filtrada: "12 lesões · 3 em aberto · reincidência 17% · afastamento médio 12 dias · 180 dias perdidos". Ações: **Registrar lesão** e Exportar (CSV).
 - **Visões:** Todas, Em aberto, Encerradas.
 - **Filtros:** campeonato (Paulistão, Copa Paulista, Série D, amistoso), período (pré-temporada, temporada), tipo, região; busca por atleta. Filtrar recalcula o resumo.
 - **Tabela:** atleta, posição, dia, lesão, região e lado, reincidência, afastamento ("Em aberto" em destaque quando não tem fim), retorno, campeonato e período. Clicar abre a ficha na aba Lesões. `···`: Registrar retorno, Editar, Excluir.
@@ -300,7 +300,7 @@ Abre pelo botão "Relatório" da ficha. Não existe tela de relatórios no menu;
 
 ## Tela: Configurações
 
-Só Fisioterapia. Navegação secundária vertical: **Listas** (HD, locais, objetivos, status, tipos de lesão), **Campeonatos** (datas de cada campeonato e da pré-temporada), **Usuários** (perfis e o que cada um faz). No MVP as três são **só leitura**: os valores vêm de `src/lib/catalogos.ts` e mudam por pedido de alteração. Edição pela tela entra junto com o login `[a definir]`.
+Abre pelo **menu do perfil** (canto superior direito), só Fisioterapia. Navegação secundária vertical: **Listas** (HD, locais, objetivos, status, tipos de lesão), **Campeonatos** (datas de cada campeonato e da pré-temporada), **Usuários** (perfis e o que cada um faz). No MVP as três são **só leitura**: os valores vêm de `src/lib/catalogos.ts` e mudam por pedido de alteração. Edição pela tela entra junto com o login `[a definir]`.
 
 ## Dados e regras
 
@@ -308,7 +308,7 @@ Todo número e todo status das telas é calculado a partir destes registros, nun
 
 | Registro | Campos |
 |---|---|
-| Atleta | nome, nome na camisa, camisa, posição, nascimento, altura, peso, pé, foto, alergias/medicamentos, lesões anteriores, ativo |
+| Atleta | nome, apelido, camisa (opcional), posição, nascimento, altura, peso, pé, foto, alergias/medicamentos, lesões anteriores, ativo |
 | Atendimento | atleta, data, período, HD, local da queixa, objetivo, status, evolução, registrado por, registrado em |
 | Lesão | atleta, dia, tipo, estrutura, região, lado, reincidência, dias de afastamento (vazio = em aberto), campeonato, período, observação, registrado por |
 | Teste | atleta, tipo (dinamometria joelho, quadril, ombro, hop test), data, campos `[a definir]` |
@@ -366,10 +366,10 @@ Onde o prompt original estava incompleto, contraditório ou em conflito com os p
 
 **Design**
 
-1. **Visual do MVP antigo descartado.** Cores, fontes e medidas do prompt eram do MVP; o design vem de `docs/design.md`. O acento é o `indigo` do Radix (azul profundo, conversa com o azul e branco do clube e passa AA com texto branco).
+1. **Visual do MVP antigo descartado.** Cores, fontes e medidas do prompt eram do MVP; o design vem de `docs/design.md`. A ação primária é em tinta preta e o azul do clube aparece só no escudo, no foco, nos links e nos gráficos (referências Vercel, Linear e Cal em `docs/design.md`).
 2. **Dois presets.** Preset 3 é a base (registros, tabelas, formulários); do Preset 1 entram barra de comando, atalhos, motion e modo escuro. Conflitos resolvidos em `docs/design.md`.
 3. **Jogadores em tabela, não em cards.** O Preset 3 define índice = tabela com visões e busca; a foto continua na linha para achar pelo rosto.
-4. **"Registrar atendimento" só na barra superior** conflitava com "uma ação primária por tela" (Jogadores e Lesões têm a própria). Fica como primária em Atendimentos e na ficha, e no atalho `N`/barra de comando nas demais.
+4. **"Registrar atendimento" sempre no mesmo lugar.** O prompt pedia um botão só; ele fica no topo da lateral (preto, o único do sistema), e na ficha já vem com o jogador. As ações das páginas são secundárias.
 5. **Painel com muitos gráficos × "um gráfico principal".** Um gráfico principal + tabela "Precisa de atenção" + seção Distribuição com barras horizontais (substitui o Power BI sem virar mural de gráficos).
 6. **Distribuição de lesões por região e tipo** estava no Índice de lesões e repetiria o Painel. Ficou só no Painel; o índice tem a linha de resumo.
 7. **Listas da planilha com mais de 8 opções** continuam como botões de opção (exceção à regra do select com busca), para manter o registro em 2 ou 3 toques.
@@ -393,6 +393,8 @@ Onde o prompt original estava incompleto, contraditório ou em conflito com os p
 22. **"Configurar listas"** estava nas permissões, mas não havia tela. Criada Configurações, por enquanto só leitura (ver Tela: Configurações).
 23. **Registro no celular.** O prompt pede ao mesmo tempo "formulário preenchido" e o botão "Repetir e ajustar" que copia o último. No computador vem preenchido; no celular a cópia é o botão, para ficar explícito o que está sendo repetido.
 24. **Imprimir e Baixar PDF** viraram um botão só ("Imprimir ou salvar PDF"), seguindo "um botão por ação".
+25. **Número da camisa opcional.** Não identifica, não ordena e não filtra nada; aparece só como detalhe quando existe. Jogador da base sem número é cadastrado normalmente.
+26. **Facilidade antes de tudo.** Saíram a seleção em massa da lista de atendimentos, o botão "Trocar jogador" (a busca da lateral faz isso), os títulos de seção da lateral e os textos de apoio repetidos. Configurações foi para o menu do perfil.
 
 ## Pendências
 

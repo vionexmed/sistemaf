@@ -7,9 +7,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
-export type OpcaoAtleta = { id: number; nome: string; apelido: string; camisa: number; posicao: string; foto: string | null };
+export type OpcaoAtleta = { id: number; nome: string; apelido: string; camisa: number | null; posicao: string; foto: string | null };
 
-/** Escolha do atleta com busca por nome, apelido ou camisa. */
+/** Escolha do atleta com busca por nome ou apelido (a camisa também acha, quando existe). */
 export function SeletorAtleta({
   id,
   atletas,
@@ -47,7 +47,7 @@ export function SeletorAtleta({
             <>
               <Avatar nome={atual.nome} foto={atual.foto} tamanho={24} />
               <span className="truncate font-medium">{atual.nome}</span>
-              <span className="text-sm text-muted-foreground tabular">#{atual.camisa}</span>
+              {atual.camisa != null && <span className="text-sm text-muted-foreground tabular">#{atual.camisa}</span>}
             </>
           ) : (
             <span className="text-muted-foreground">Escolha o atleta</span>
@@ -57,20 +57,19 @@ export function SeletorAtleta({
       </PopoverTrigger>
       <PopoverContent id={idLista} className="w-[var(--radix-popover-trigger-width)] min-w-72 p-0">
         <Command filter={(v, busca) => (v.toLowerCase().includes(busca.toLowerCase().trim()) ? 1 : 0)}>
-          <CommandInput placeholder="Nome ou número da camisa" />
+          <CommandInput placeholder="Buscar atleta" />
           <CommandList>
             <CommandEmpty>Nenhum atleta encontrado.</CommandEmpty>
             <CommandGroup>
               {atletas.map((a) => (
                 <CommandItem
                   key={a.id}
-                  value={`${a.camisa} ${a.nome} ${a.apelido}`}
+                  value={`${a.nome} ${a.apelido} ${a.camisa ?? ""}`}
                   onSelect={() => {
                     aoMudar(a.id);
                     setAberto(false);
                   }}
                 >
-                  <span className="w-6 text-right text-sm text-muted-foreground tabular">{a.camisa}</span>
                   <Avatar nome={a.nome} foto={a.foto} tamanho={24} />
                   <span className="truncate">{a.nome}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{a.posicao}</span>

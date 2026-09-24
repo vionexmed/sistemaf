@@ -137,7 +137,6 @@ export default async function Painel({ searchParams }: { searchParams: Promise<P
             <Table>
               <TableHeader>
                 <TableRow className="h-9">
-                  <TableHead numero className="w-12">Nº</TableHead>
                   <TableHead>Atleta</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Lesão</TableHead>
@@ -149,7 +148,6 @@ export default async function Painel({ searchParams }: { searchParams: Promise<P
               <TableBody>
                 {atencao.map(({ l, a, diasFora, motivo, urgente }) => (
                   <TableRow key={l.id}>
-                    <TableCell numero className="text-muted-foreground">{a.camisa}</TableCell>
                     <TableCell>
                       <Link href={`/jogadores/${a.id}?aba=lesoes`} className="flex items-center gap-2 font-medium hover:underline">
                         <Avatar nome={a.nome} foto={a.foto ? `/api/arquivos/${a.foto}` : null} tamanho={24} /> {a.nome}
@@ -207,7 +205,7 @@ export default async function Painel({ searchParams }: { searchParams: Promise<P
                 limite={8}
                 itens={r.porAtleta.map((c) => {
                   const a = atletas.get(c.valor)!;
-                  return { rotulo: a.nome, total: c.total, href: `/jogadores/${a.id}`, prefixo: <span className="w-5 text-right text-xs text-muted-foreground tabular">{a.camisa}</span> };
+                  return { rotulo: a.nome, total: c.total, href: `/jogadores/${a.id}` };
                 })}
               />
             </CardContent>

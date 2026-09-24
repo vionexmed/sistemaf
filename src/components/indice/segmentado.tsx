@@ -13,7 +13,7 @@ export function FiltroSegmentado({ chave, rotulo, opcoes, padrao }: { chave: str
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">{rotulo}</span>
-      <div role="radiogroup" aria-label={rotulo} className="inline-flex h-9 items-center rounded-md border bg-subtle p-0.5">
+      <div role="radiogroup" aria-label={rotulo} className="inline-flex h-8 items-center rounded-full bg-hover p-0.5">
         {opcoes.map((o) => (
           <Link
             key={o.valor}
@@ -22,8 +22,8 @@ export function FiltroSegmentado({ chave, rotulo, opcoes, padrao }: { chave: str
             href={url({ [chave]: o.valor === padrao ? null : o.valor })}
             scroll={false}
             className={cn(
-              "flex h-full items-center rounded-sm px-3 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground",
-              o.valor === atual && "bg-surface font-medium text-foreground shadow-[0_0_0_1px_var(--border)]",
+              "flex h-full items-center rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground",
+              o.valor === atual && "bg-surface text-foreground shadow-ativo",
             )}
           >
             {o.rotulo}

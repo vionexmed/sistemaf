@@ -21,7 +21,7 @@ export default async function EditarJogador({ params }: { params: Promise<{ id: 
           nome: a.nome,
           apelido: a.apelido,
           nascimento: a.nascimento,
-          camisa: String(a.camisa),
+          camisa: a.camisa == null ? "" : String(a.camisa),
           posicao: a.posicao,
           alturaCm: a.alturaCm ? String(a.alturaCm) : "",
           pesoKg: a.pesoKg ? String(Number(a.pesoKg)).replace(".", ",") : "",

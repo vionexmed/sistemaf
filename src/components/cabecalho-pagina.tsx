@@ -32,13 +32,13 @@ export function CabecalhoPagina({
           </Link>
         )}
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-2xl font-semibold tracking-titulo">
             {titulo}
-            {contagem != null && <span className="ml-2 font-normal text-muted-foreground tabular">{contagem}</span>}
+            {contagem != null && <span className="ml-2 font-normal text-faint-foreground tabular">{contagem}</span>}
           </h1>
           {meta}
         </div>
-        {descricao && <p className="mt-1 text-sm text-muted-foreground">{descricao}</p>}
+        {descricao && <p className="mt-1 text-base text-muted-foreground">{descricao}</p>}
       </div>
       {acoes && <div className="flex flex-wrap items-center gap-2">{acoes}</div>}
     </div>

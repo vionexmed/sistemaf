@@ -14,12 +14,12 @@ const opcional = (max: number) => z.string().trim().max(max, `Pode ter até ${ma
 
 const Jogador = z.object({
   nome: z.string().trim().min(3, "Informe o nome completo").max(120, "Nome muito longo"),
-  apelido: z.string().trim().min(1, "Informe o nome na camisa").max(30, "Use até 30 caracteres"),
+  apelido: z.string().trim().min(1, "Informe o apelido").max(30, "Use até 30 caracteres"),
   nascimento: z
     .string()
     .refine(ehDataISO, "Informe a data de nascimento")
     .refine((d) => !ehDataISO(d) || (idade(d, hojeISO()) >= 14 && idade(d, hojeISO()) <= 50), "Confira a data: a idade fica fora de 14 a 50 anos"),
-  camisa: z.coerce.number({ message: "Informe o número da camisa" }).int("Use um número inteiro").min(1, "Use de 1 a 99").max(99, "Use de 1 a 99"),
+  camisa: z.union([z.literal("").transform(() => null), z.coerce.number().int("Use um número inteiro").min(1, "Use de 1 a 99").max(99, "Use de 1 a 99")]),
   posicao: z.enum(valores(POSICOES), { message: "Escolha a posição" }),
   alturaCm: z.union([z.literal("").transform(() => null), z.coerce.number().int("Use centímetros, ex.: 182").min(140, "Altura em centímetros, ex.: 182").max(220, "Altura em centímetros, ex.: 182")]),
   pesoKg: z.union([z.literal("").transform(() => null), z.coerce.number().min(40, "Peso em kg, ex.: 78,5").max(150, "Peso em kg, ex.: 78,5").transform((n) => n.toFixed(1))]),
@@ -40,7 +40,7 @@ export async function salvarJogador(_: EstadoJogador, form: FormData): Promise<E
     nome: texto("nome"),
     apelido: texto("apelido"),
     nascimento: texto("nascimento"),
-    camisa: texto("camisa") || undefined,
+    camisa: texto("camisa").trim(),
     posicao: texto("posicao") || undefined,
     alturaCm: texto("alturaCm").trim(),
     pesoKg: texto("pesoKg").trim().replace(",", "."),
@@ -64,7 +64,7 @@ export async function salvarJogador(_: EstadoJogador, form: FormData): Promise<E
   }
 
   const db = await banco();
-  if (lido.success) {
+  if (lido.success && lido.data.camisa != null) {
     const [repetido] = await db
       .select({ nome: schema.atletas.nome })
       .from(schema.atletas)
@@ -95,10 +95,13 @@ export async function alterarAtivo(id: number, ativo: boolean): Promise<{ erro?:
   const db = await banco();
   if (ativo) {
     const [a] = await db.select().from(schema.atletas).where(eq(schema.atletas.id, id));
-    const [repetido] = a
-      ? await db.select({ nome: schema.atletas.nome }).from(schema.atletas).where(and(eq(schema.atletas.camisa, a.camisa), eq(schema.atletas.ativo, true), ne(schema.atletas.id, id)))
-      : [];
-    if (repetido) return { erro: `A camisa ${a!.camisa} já é de ${repetido.nome}. Troque o número antes de voltar ao elenco.` };
+    if (a?.camisa != null) {
+      const [repetido] = await db
+        .select({ nome: schema.atletas.nome })
+        .from(schema.atletas)
+        .where(and(eq(schema.atletas.camisa, a.camisa), eq(schema.atletas.ativo, true), ne(schema.atletas.id, id)));
+      if (repetido) return { erro: `A camisa ${a.camisa} já é de ${repetido.nome}. Troque ou apague o número antes de voltar ao elenco.` };
+    }
   }
   await db.update(schema.atletas).set({ ativo }).where(eq(schema.atletas.id, id));
   revalidatePath("/", "layout");
