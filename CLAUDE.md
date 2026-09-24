@@ -132,7 +132,7 @@ Enquanto não existe login, o menu do usuário tem "Trocar perfil (demonstraçã
 
 ## Navegação
 
-- **Lateral:** escudo e nome do clube, o botão preto **Registrar atendimento**, "Buscar jogador" e 4 itens: Atendimentos, Jogadores, Lesões, Painel (com contadores discretos: atendimentos de hoje, afastados, lesões em aberto). Abaixo, **Afastados agora** (foto, apelido, retorno previsto ou há quantos dias), **Vistos por último** (os últimos jogadores abertos) e, no rodapé, o cartão **Hoje** (atendimentos do dia, atletas e manhã × tarde).
+- **Lateral:** escudo e nome do clube, o botão preto **Registrar atendimento**, "Buscar jogador" e 4 itens: Atendimentos, Jogadores, Lesões, Painel (com contadores discretos: atendimentos de hoje, afastados, lesões em aberto).
 - **Menu do perfil** (avatar no canto superior direito): Configurações, tema claro/escuro, trocar perfil (demonstração) e Sair.
 - Topo: caminho de navegação clicável ("Jogadores / Rafael Moura"), Avisos e o menu do perfil.
 - **Registrar atendimento** é a ação principal do sistema e fica **sempre no mesmo lugar**: o botão preto no topo da lateral, em todas as telas. Na ficha de um jogador ele vira "Atendimento do Rafael" e já abre com ele escolhido. Também no atalho `N` e na barra de comando. Nenhuma tela repete esse botão.

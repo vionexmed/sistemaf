@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  ChevronDown,
   ClipboardList,
   HeartPulse,
   LayoutDashboard,
@@ -44,8 +43,6 @@ import { trocarPerfil, trocarTema } from "@/lib/acoes/sessao";
 export type AtletaBusca = { id: number; nome: string; apelido: string; camisa: number | null; posicao: string; foto: string | null };
 export type Notificacao = { id: string; titulo: string; detalhe: string; href: string };
 export type Contagens = { atendimentosHoje: number; lesoesAbertas: number; afastados: number };
-export type AfastadoLateral = { id: number; nome: string; apelido: string; foto: string | null; detalhe: string; urgente: boolean };
-export type ResumoHoje = { matutino: number; vespertino: number; atletas: number; dataExtenso: string };
 
 type ItemNav = { href: string; rotulo: string; icone: LucideIcon; tecla: string; contagem?: (c: Contagens) => number | null };
 
@@ -92,31 +89,6 @@ function lerMenuRecolhido() {
   } catch {
     return false;
   }
-}
-
-// Jogadores abertos por último (só neste navegador).
-const CHAVE_RECENTES = "jogadores-recentes";
-function assinarRecentes(aviso: () => void) {
-  window.addEventListener("jogadores-recentes", aviso);
-  window.addEventListener("storage", aviso);
-  return () => {
-    window.removeEventListener("jogadores-recentes", aviso);
-    window.removeEventListener("storage", aviso);
-  };
-}
-function lerRecentes(): string {
-  try {
-    return localStorage.getItem(CHAVE_RECENTES) ?? "";
-  } catch {
-    return "";
-  }
-}
-function lembrarJogador(id: string) {
-  try {
-    const lista = lerRecentes().split(",").filter((x) => x && x !== id);
-    localStorage.setItem(CHAVE_RECENTES, [id, ...lista].slice(0, 5).join(","));
-    window.dispatchEvent(new Event("jogadores-recentes"));
-  } catch {}
 }
 
 function useAtalhos(acoes: Record<string, () => void>, abrirBusca: () => void) {
@@ -168,8 +140,6 @@ export function AppShell({
   atletas,
   notificacoes,
   contagens,
-  afastados,
-  resumoHoje,
   tema,
   children,
 }: {
@@ -178,8 +148,6 @@ export function AppShell({
   atletas: AtletaBusca[];
   notificacoes: Notificacao[];
   contagens: Contagens;
-  afastados: AfastadoLateral[];
-  resumoHoje: ResumoHoje;
   tema: "claro" | "escuro";
   children: React.ReactNode;
 }) {
@@ -202,14 +170,6 @@ export function AppShell({
   const atletaDaRota = pathname.match(/^\/jogadores\/(\d+)/)?.[1];
   const atletaAtual = atletaDaRota ? atletas.find((a) => String(a.id) === atletaDaRota) : undefined;
   const nomes = React.useMemo(() => new Map(atletas.map((a) => [String(a.id), a.nome])), [atletas]);
-  React.useEffect(() => {
-    if (atletaAtual) lembrarJogador(String(atletaAtual.id));
-  }, [atletaAtual]);
-  const recentesIds = React.useSyncExternalStore(assinarRecentes, lerRecentes, () => "");
-  const recentes = React.useMemo(
-    () => recentesIds.split(",").map((id) => atletas.find((a) => String(a.id) === id)).filter((a): a is AtletaBusca => !!a).slice(0, 4),
-    [recentesIds, atletas],
-  );
   const emFormulario = /\/(novo|nova|editar|retorno)$/.test(pathname);
 
   const hrefAtendimento = `/atendimentos/novo${atletaAtual ? `?atleta=${atletaAtual.id}` : ""}`;
@@ -249,22 +209,21 @@ export function AppShell({
 
   const barraLateral = (movel: boolean) => {
     const compacto = recolhido && !movel;
-    const totalHoje = resumoHoje.matutino + resumoHoje.vespertino;
     return (
-      <div className="flex h-full flex-col px-3 pt-3 pb-3">
+      <div className="flex h-full flex-col gap-4 px-3 py-3">
         {/* Clube */}
-        <div className={cn("flex h-10 items-center gap-2.5", compacto ? "justify-center" : "px-1")}>
+        <div className={cn("flex h-9 items-center gap-2", compacto ? "justify-center" : "px-1")}>
           <span
             aria-hidden
             title="Espaço do escudo do clube"
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-acento text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_1px_2px_rgba(0,0,0,0.2)]"
+            className="flex size-7 shrink-0 items-center justify-center rounded-md bg-surface text-acento shadow-ativo"
           >
-            <Shield className="size-4" strokeWidth={2.25} />
+            <Shield className="size-4" strokeWidth={2} />
           </span>
           {!compacto && (
             <div className="min-w-0 flex-1 leading-tight">
               <p className="truncate text-sm font-semibold tracking-tight">EC Santo André</p>
-              <p className="truncate text-xs text-muted-foreground">Fisioterapia · 2026</p>
+              <p className="truncate text-xs text-muted-foreground">Fisioterapia</p>
             </div>
           )}
           {!compacto && !movel && (
@@ -282,95 +241,39 @@ export function AppShell({
             <Link
               href={hrefAtendimento}
               className={cn(
-                "mt-4 flex h-9 items-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_1px_2px_rgba(0,0,0,0.2)] transition-colors duration-150 hover:bg-primary-hover",
+                "flex h-9 items-center gap-2 rounded-md bg-primary text-sm font-medium text-primary-foreground shadow-[0_1px_2px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-primary-hover",
                 compacto ? "justify-center px-0" : "px-3",
               )}
             >
-              <Plus className="size-4 shrink-0" strokeWidth={2.25} />
-              {!compacto && (
-                <>
-                  <span className="flex-1 truncate">{atletaAtual ? `Atendimento do ${atletaAtual.apelido}` : "Registrar atendimento"}</span>
-                  {!atletaAtual && <kbd className="rounded bg-[color-mix(in_srgb,var(--primary-foreground)_15%,transparent)] px-1.5 font-sans text-xs text-[color-mix(in_srgb,var(--primary-foreground)_75%,transparent)]">N</kbd>}
-                </>
-              )}
+              <Plus className="size-4 shrink-0" strokeWidth={2} />
+              {!compacto && <span className="truncate">{atletaAtual ? `Atendimento do ${atletaAtual.apelido}` : "Registrar atendimento"}</span>}
             </Link>
           </Tooltip>
         )}
 
-        <div className="mt-2">
+        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto" aria-label="Principal">
           <ItemLateral compacto={compacto} rotulo="Buscar jogador" icone={Search} onClick={abrirBusca} atalho="Ctrl K" />
-        </div>
+          <div className="my-2 h-px bg-border" />
+          {NAV.map((item) => {
+            const ativo = pathname === item.href || (pathname.startsWith(item.href + "/") && pathname !== "/atendimentos/novo");
+            const n = item.contagem?.(contagens) ?? null;
+            return (
+              <ItemLateral
+                key={item.href}
+                compacto={compacto}
+                href={item.href}
+                rotulo={item.rotulo}
+                icone={item.icone}
+                ativo={ativo}
+                contagem={n}
+                dica={n != null ? `${n} ${DICA_CONTAGEM[item.href]}` : undefined}
+              />
+            );
+          })}
+        </nav>
 
-        <div className="-mx-3 mt-3 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 pb-2">
-          <nav className="flex flex-col gap-0.5" aria-label="Principal">
-            {NAV.map((item) => {
-              const ativo = pathname === item.href || (pathname.startsWith(item.href + "/") && pathname !== "/atendimentos/novo");
-              const n = item.contagem?.(contagens) ?? null;
-              return (
-                <ItemLateral
-                  key={item.href}
-                  compacto={compacto}
-                  href={item.href}
-                  rotulo={item.rotulo}
-                  icone={item.icone}
-                  ativo={ativo}
-                  contagem={n}
-                  dica={n != null ? `${n} ${DICA_CONTAGEM[item.href]}` : undefined}
-                />
-              );
-            })}
-          </nav>
-
-          {!compacto && (
-            <SecaoLateral titulo="Afastados agora" contagem={afastados.length} href="/jogadores?visao=afastados">
-              {afastados.length === 0 ? (
-                <p className="px-2 py-1 text-xs text-faint-foreground">Elenco todo disponível.</p>
-              ) : (
-                afastados.slice(0, 5).map((a) => (
-                  <JogadorLateral key={a.id} atleta={a} detalhe={a.detalhe} urgente={a.urgente} ponto="erro" />
-                ))
-              )}
-              {afastados.length > 5 && (
-                <Link href="/jogadores?visao=afastados" className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground">
-                  Ver todos os {afastados.length}
-                </Link>
-              )}
-            </SecaoLateral>
-          )}
-
-          {!compacto && recentes.length > 0 && (
-            <SecaoLateral titulo="Vistos por último">
-              {recentes.map((a) => (
-                <JogadorLateral key={a.id} atleta={a} detalhe={a.posicao} />
-              ))}
-            </SecaoLateral>
-          )}
-        </div>
-
-        {/* Resumo de hoje */}
         {!compacto ? (
-          <Link href="/atendimentos" className="mt-2 block rounded-lg bg-surface p-3 shadow-ativo transition-colors duration-150 hover:bg-subtle">
-            <p className="flex items-baseline justify-between text-xs">
-              <span className="font-medium text-foreground">Hoje</span>
-              <span className="text-faint-foreground">{resumoHoje.dataExtenso.split(",")[0]}</span>
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              <span className="text-lg font-semibold tabular text-foreground">{totalHoje}</span> {totalHoje === 1 ? "atendimento" : "atendimentos"}
-              {resumoHoje.atletas > 0 && <span> · {resumoHoje.atletas} {resumoHoje.atletas === 1 ? "atleta" : "atletas"}</span>}
-            </p>
-            <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-hover" aria-hidden>
-              {totalHoje > 0 && (
-                <>
-                  <span className="h-full bg-chart-1" style={{ width: `${(resumoHoje.matutino / totalHoje) * 100}%` }} />
-                  <span className="h-full bg-chart-2" style={{ width: `${(resumoHoje.vespertino / totalHoje) * 100}%` }} />
-                </>
-              )}
-            </div>
-            <p className="mt-1.5 flex justify-between text-xs text-faint-foreground">
-              <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-chart-1" /> Manhã {resumoHoje.matutino}</span>
-              <span className="inline-flex items-center gap-1"><span className="size-1.5 rounded-full bg-chart-2" /> Tarde {resumoHoje.vespertino}</span>
-            </p>
-          </Link>
+          <p className="px-2 text-xs text-faint-foreground">Temporada 2026</p>
         ) : (
           <button type="button" onClick={alternarMenu} className="mx-auto hidden size-8 items-center justify-center rounded-md text-faint-foreground hover:bg-hover hover:text-foreground md:flex" aria-label="Expandir menu">
             <PanelLeft className="size-4" />
@@ -482,66 +385,6 @@ function ItemLateral({
     </Tooltip>
   ) : (
     elemento
-  );
-}
-
-function SecaoLateral({ titulo, contagem, href, children }: { titulo: string; contagem?: number; href?: string; children: React.ReactNode }) {
-  const [aberta, setAberta] = React.useState(true);
-  return (
-    <section className="flex flex-col gap-0.5">
-      <div className="group flex h-7 items-center gap-1 px-2">
-        <button
-          type="button"
-          onClick={() => setAberta((v) => !v)}
-          aria-expanded={aberta}
-          className="flex flex-1 items-center gap-1 text-left text-xs font-medium text-faint-foreground hover:text-foreground"
-        >
-          {titulo}
-          <ChevronDown className={cn("size-3 opacity-0 transition-all duration-150 group-hover:opacity-100", !aberta && "-rotate-90 opacity-100")} />
-        </button>
-        {contagem != null && contagem > 0 && (
-          href ? (
-            <Link href={href} className="text-xs text-faint-foreground tabular hover:text-foreground">{contagem}</Link>
-          ) : (
-            <span className="text-xs text-faint-foreground tabular">{contagem}</span>
-          )
-        )}
-      </div>
-      {aberta && children}
-    </section>
-  );
-}
-
-function JogadorLateral({
-  atleta,
-  detalhe,
-  urgente,
-  ativo,
-  ponto,
-}: {
-  atleta: { id: number; nome: string; apelido: string; foto: string | null };
-  detalhe: string;
-  urgente?: boolean;
-  ativo?: boolean;
-  ponto?: "erro";
-}) {
-  return (
-    <Link
-      href={`/jogadores/${atleta.id}`}
-      aria-current={ativo ? "page" : undefined}
-      className={cn(
-        "group flex h-9 items-center gap-2.5 rounded-md px-2 transition-colors duration-150 hover:bg-hover",
-        ativo && "bg-surface shadow-ativo hover:bg-surface",
-      )}
-      title={atleta.nome}
-    >
-      <span className="relative shrink-0">
-        <Avatar nome={atleta.nome} foto={atleta.foto} tamanho={24} />
-        {ponto && <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-background bg-erro-9" aria-hidden />}
-      </span>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-muted-foreground group-hover:text-foreground">{atleta.apelido}</span>
-      <span className={cn("shrink-0 text-xs tabular", urgente ? "font-medium text-erro-11" : "text-faint-foreground")}>{detalhe}</span>
-    </Link>
   );
 }
 

@@ -81,14 +81,13 @@ Quinta-feira, 24 de setembro · 4 em tratamento · 2 queixa pós-treino
 
 **Lateral** (240 px; recolhe para 64 px só com ícones):
 
-- **Clube:** escudo (tile azul do clube, 32 px, espaço para o escudo oficial), "EC Santo André" / "Fisioterapia · 2026" e o botão de recolher.
-- **Botão preto "Registrar atendimento"** com a tecla `N` à mostra (só Fisioterapia). Na ficha vira "Atendimento do [apelido]".
-- **"Buscar jogador"** com `Ctrl K`, como uma linha de navegação.
-- **4 itens**: Atendimentos, Jogadores, Lesões, Painel. Ícone 16 px cinza + texto 14 px/500; contador discreto à direita (atendimentos de hoje, afastados, lesões em aberto). Ativo = fundo branco "levantado", texto em tinta.
-- **Afastados agora:** até 5 jogadores afastados, com foto, apelido e "volta 26/09" ou "há 9 dias" (em vermelho quando está em aberto há mais de 14 dias). Clicar abre a ficha. Seção recolhível.
-- **Vistos por último:** os 4 últimos jogadores abertos neste navegador, para voltar rápido a quem está sendo atendido.
-- **Rodapé "Hoje":** cartão com o total de atendimentos do dia, quantos atletas, e a barra manhã × tarde. Clicar abre Atendimentos de hoje.
-- Recolhida (64 px): só ícones, com tooltip; as seções de jogadores e o cartão somem.
+- Topo: escudo do clube (placeholder neutro com o escudo em azul), "EC Santo André" / "Fisioterapia" e o botão de recolher.
+- Botão preto "Registrar atendimento" (só Fisioterapia).
+- "Buscar jogador" com `Ctrl K`, como uma linha de navegação.
+- 4 itens sem seções nem títulos: Atendimentos, Jogadores, Lesões, Painel. Ícone 16 px cinza + texto 14 px/500.
+- Item ativo: fundo branco "levantado" (hairline + sombra mínima), texto em tinta. Sem cor de acento, sem pílula colorida.
+- Contador discreto à direita quando ajuda: atendimentos de hoje, afastados hoje, lesões em aberto.
+- Rodapé: "Temporada 2026" em cinza claro.
 
 **Topo** (48 px, dentro do painel): caminho de navegação, Avisos (sino com pontinho azul quando há algo) e o **menu do perfil** (avatar + nome), que reúne **Configurações**, tema claro/escuro, "Trocar perfil (demonstração)" e Sair.
 
