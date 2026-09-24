@@ -60,7 +60,7 @@ src/components/           componentes do produto (manequim, gráficos, badge de 
 src/lib/dominio/          regras puras: status do atleta, cálculos, datas, mapa de queixas. Tudo testado
 src/lib/catalogos.ts      listas da planilha (HD, locais, objetivos, posições, campeonatos e datas)
 src/lib/consultas/        leitura do banco (só no servidor)
-src/lib/acoes/            Server Actions (gravação), sempre começando por exigirPerfil()
+src/lib/acoes/            Server Actions (gravação), sempre começando por exigir()
 src/lib/sessao.ts         usuário atual e permissões
 src/db/                   schema Drizzle, conexão, migração e dados de demonstração
 drizzle/                  migrações SQL geradas
@@ -91,7 +91,9 @@ docs/design.md            design do sistema
 
 - **Nada calculado é gravado.** Status e totais saem de `src/lib/dominio` a partir dos registros, a cada leitura.
 - **"Hoje" é no horário de Brasília** (`hojeISO()` em `src/lib/dominio/datas.ts`). O servidor roda em UTC.
-- **Toda Server Action começa com `exigirPerfil(...)`.** Server Actions aceitam POST direto; esconder o botão não basta.
+- **Toda Server Action começa com `exigir("editar")`** (`src/lib/sessao.ts`). Server Actions aceitam POST direto; esconder o botão não basta. Rotas que entregam arquivos checam `permissoes()`.
+- **Formulários tratam o resultado dentro da própria action** (`useActionState(async (anterior, form) => { const r = await salvarX(anterior, form); ... })`), nunca num `useEffect`.
+- **Botões que trocam de papel no mesmo lugar** (Continuar → Salvar) precisam de `key` diferentes, senão o React reaproveita o elemento e o clique envia o formulário.
 - **Listas vêm de `src/lib/catalogos.ts`.** Nunca escrever uma opção direto numa tela. O banco guarda a chave; a tela mostra o rótulo.
 - **Filtros, busca, ordenação, página e aba vivem na URL.**
 - **Mudou uma regra de cálculo:** atualize o teste em `src/lib/dominio/*.test.ts` e a tabela [Como cada número é calculado](#como-cada-número-é-calculado).
@@ -152,7 +154,7 @@ flowchart LR
 A planilha diária virada tela. Abre na visão **Hoje**: todos os atendimentos registrados no dia, em tempo real (a lista se atualiza sozinha a cada 20 s e ao voltar para a aba).
 
 - **Cabeçalho:** "Atendimentos" com a contagem, a data por extenso ("Quarta-feira, 23 de setembro") e o resumo "6 em tratamento · 3 queixa pós-treino". Ação primária: **Registrar atendimento**. Secundária: Exportar (CSV).
-- **Visões:** Hoje, Ontem, 7 dias, Todos. Na visão Hoje, setas para o dia anterior e o seguinte (`?data=2026-09-22`).
+- **Visões:** Hoje, Ontem, 7 dias, Temporada. Na visão Hoje, setas para o dia anterior e o seguinte (`?data=2026-09-22`).
 - **Filtros:** período (matutino, vespertino), status, HD, local, objetivo; busca por atleta.
 - **Tabela** com as colunas da planilha: camisa, atleta, posição, HD, local da queixa, objetivo do trabalho, status, período e registrado há. Clicar na linha abre a ficha. `···`: Editar, Excluir (Fisioterapia).
 - **Seleção em massa:** Exportar selecionados; Excluir (Fisioterapia, com confirmação que diz quantos).
@@ -177,7 +179,7 @@ Grupos, nesta ordem:
 
 - Cabeçalho com "Novo atendimento" e a data.
 - **"Quem está na sala?":** atalhos com os jogadores mais atendidos nos últimos 14 dias.
-- **"Mesmo de ontem?":** resumo do último atendimento do jogador escolhido e o botão "Repetir e ajustar", que copia tudo.
+- **"Mesmo de ontem?":** resumo do último atendimento do jogador escolhido e o botão "Repetir e ajustar", que copia HD, local, objetivo e status. No celular os campos só vêm preenchidos por esse botão, para a fisio confirmar com um toque: escolher o jogador → Repetir e ajustar → Salvar = 3 toques.
 - Um bloco por campo, na mesma ordem do computador, e "Salvar atendimento" fixo no rodapé.
 - Depois de salvar: confirmação e o botão "Registrar o próximo".
 
@@ -186,7 +188,7 @@ Grupos, nesta ordem:
 O elenco, feito para achar um jogador rápido. Só identifica e mostra o status; a análise fica na ficha.
 
 - **Cabeçalho:** "Jogadores" com a contagem do elenco. Ação primária: **Adicionar jogador** (Fisioterapia).
-- **Visões:** Todos, Goleiros, Defensores, Meio-campistas, Atacantes, Afastados. Grupos: goleiro → Goleiros; zagueiro e lateral → Defensores; volante e meia → Meio-campistas; extremo e atacante → Atacantes.
+- **Visões:** Todos, Goleiros, Defensores, Meio-campistas, Atacantes, Afastados, Fora do elenco. Grupos: goleiro → Goleiros; zagueiro e lateral → Defensores; volante e meia → Meio-campistas; extremo e atacante → Atacantes.
 - **Busca** por nome, apelido ou camisa.
 - **Tabela:** camisa, jogador (foto + nome + apelido), posição, status, idade. Clicar abre a ficha. `···`: Abrir ficha, Editar, Registrar lesão.
 - Não mostrar gráficos nem contagens por jogador aqui.
@@ -285,7 +287,7 @@ Visão do departamento inteiro no período escolhido. Substitui a aba de gráfic
 
 Abre pelo botão "Relatório" da ficha. Não existe tela de relatórios no menu; o Painel, Atendimentos e Lesões têm o próprio Exportar.
 
-- **Barra de ações** (não sai na impressão): Voltar para a ficha, período (`?de=&ate=`, padrão últimos 30 dias), Copiar link, Imprimir / Salvar PDF.
+- **Barra de ações** (não sai na impressão): Voltar para a ficha, período (`?de=&ate=`, padrão últimos 30 dias), Copiar link e "Imprimir ou salvar PDF" (um botão só: a impressão do navegador já oferece salvar em PDF).
 - **A folha** (largura de A4, pronta para PDF):
   1. Cabeçalho: escudo, "Departamento de saúde · EC Santo André", período ("24 ago a 23 set de 2026") e "Para: comissão técnica".
   2. Jogador: foto, nome, posição, idade, altura, peso, pé e status.
@@ -298,7 +300,7 @@ Abre pelo botão "Relatório" da ficha. Não existe tela de relatórios no menu;
 
 ## Tela: Configurações
 
-Só Fisioterapia. Navegação secundária vertical: **Listas** (HD, locais, objetivos: por enquanto só leitura, vindas de `catalogos.ts`), **Campeonatos** (datas de cada campeonato e da pré-temporada), **Usuários** `[a definir com o login]`.
+Só Fisioterapia. Navegação secundária vertical: **Listas** (HD, locais, objetivos, status, tipos de lesão), **Campeonatos** (datas de cada campeonato e da pré-temporada), **Usuários** (perfis e o que cada um faz). No MVP as três são **só leitura**: os valores vêm de `src/lib/catalogos.ts` e mudam por pedido de alteração. Edição pela tela entra junto com o login `[a definir]`.
 
 ## Dados e regras
 
@@ -388,7 +390,9 @@ Onde o prompt original estava incompleto, contraditório ou em conflito com os p
 19. **Dados de saúde (LGPD, art. 11 — dados pessoais sensíveis):** a Comissão não vê documentos, evolução nem dados de saúde; arquivos só são entregues depois de checar o perfil. Login real e registro de acesso nas Pendências.
 20. **Jogador que sai do elenco** fica inativo, sem perder o histórico.
 21. **Notificações** não tinham conteúdo. Mostram retornos previstos para hoje e amanhã e lesões em aberto há mais de 14 dias. `[confirmar com o Thales]`
-22. **"Configurar listas"** estava nas permissões, mas não havia tela. Criada Configurações (listas em leitura por enquanto; campeonatos editáveis).
+22. **"Configurar listas"** estava nas permissões, mas não havia tela. Criada Configurações, por enquanto só leitura (ver Tela: Configurações).
+23. **Registro no celular.** O prompt pede ao mesmo tempo "formulário preenchido" e o botão "Repetir e ajustar" que copia o último. No computador vem preenchido; no celular a cópia é o botão, para ficar explícito o que está sendo repetido.
+24. **Imprimir e Baixar PDF** viraram um botão só ("Imprimir ou salvar PDF"), seguindo "um botão por ação".
 
 ## Pendências
 
@@ -403,3 +407,7 @@ Onde o prompt original estava incompleto, contraditório ou em conflito com os p
 - [ ] Hospedagem: Postgres e armazenamento de arquivos (hoje os arquivos ficam em `.data/uploads`, só para desenvolvimento)
 
 **Ordem de construção:** cadastro de atletas → registrar atendimento → ficha do jogador → atendimentos de hoje → lesões → painel → relatório.
+
+## Estado atual
+
+Todas as telas da ordem de construção estão prontas, com banco de demonstração (28 jogadores fictícios, ~10 semanas de atendimentos, 12 lesões). Fica para depois: login e usuários, edição das listas pela tela, aba Testes (espera o modelo), importação das planilhas antigas e hospedagem.
