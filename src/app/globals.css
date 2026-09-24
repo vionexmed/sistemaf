@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+/* Escalas Radix (12 passos, papel fixo por passo — ver docs/design.md). Modo escuro via classe .dark */
+@import "@radix-ui/colors/slate.css";
+@import "@radix-ui/colors/slate-dark.css";
+@import "@radix-ui/colors/indigo.css";
+@import "@radix-ui/colors/indigo-dark.css";
+@import "@radix-ui/colors/indigo-alpha.css";
+@import "@radix-ui/colors/indigo-dark-alpha.css";
+@import "@radix-ui/colors/blue.css";
+@import "@radix-ui/colors/blue-dark.css";
+@import "@radix-ui/colors/green.css";
+@import "@radix-ui/colors/green-dark.css";
+@import "@radix-ui/colors/amber.css";
+@import "@radix-ui/colors/amber-dark.css";
+@import "@radix-ui/colors/red.css";
+@import "@radix-ui/colors/red-dark.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* papéis (shadcn/ui) mapeados nos passos Radix */
+  --background: var(--slate-2);
+  --surface: #ffffff;
+  --subtle: var(--slate-2);
+  --foreground: var(--slate-12);
+  --muted-foreground: var(--slate-11);
+  --border: var(--slate-6);
+  --input: var(--slate-7);
+  --hover: var(--slate-4);
+  --pressed: var(--slate-5);
+  --primary: var(--indigo-9);
+  --primary-hover: var(--indigo-10);
+  --primary-foreground: #ffffff;
+  --selected: var(--indigo-3);
+  --selected-border: var(--indigo-8);
+  --link: var(--indigo-11);
+  --ring: var(--indigo-8);
+  --destructive: var(--red-9);
+  --destructive-hover: var(--red-10);
+
+  /* gráficos: paleta categórica dessaturada, nunca a semântica */
+  --chart-1: #5470a8;
+  --chart-2: #c19a55;
+  --chart-3: #6b9a8b;
+  --chart-4: #8f79a8;
+  --chart-5: #b27b6b;
+  --chart-6: #7c8894;
+  --chart-muted: var(--slate-6);
+
+  --sombra-overlay: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --surface: var(--slate-1);
+  --subtle: var(--slate-2);
+  --background: var(--slate-1);
+  --primary-foreground: #ffffff;
+  --chart-1: #7f98c9;
+  --chart-2: #d6b577;
+  --chart-3: #8dbcad;
+  --chart-4: #ae9bc6;
+  --chart-5: #cf9a8a;
+  --chart-6: #9aa6b2;
+  --sombra-overlay: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
+  /* só os tokens do design: a paleta, tamanhos e raios padrão do Tailwind ficam desligados */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-hover: var(--hover);
+  --color-pressed: var(--pressed);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-selected: var(--selected);
+  --color-selected-border: var(--selected-border);
+  --color-link: var(--link);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-muted: var(--chart-muted);
+
+  /* semânticas: só badge de status, validação e feedback (passos 3, 6, 9 e 11) */
+  --color-ok-3: var(--green-3);
+  --color-ok-6: var(--green-6);
+  --color-ok-9: var(--green-9);
+  --color-ok-11: var(--green-11);
+  --color-aviso-3: var(--amber-3);
+  --color-aviso-6: var(--amber-6);
+  --color-aviso-9: var(--amber-9);
+  --color-aviso-11: var(--amber-11);
+  --color-erro-3: var(--red-3);
+  --color-erro-6: var(--red-6);
+  --color-erro-9: var(--red-9);
+  --color-erro-11: var(--red-11);
+  --color-info-3: var(--blue-3);
+  --color-info-6: var(--blue-6);
+  --color-info-9: var(--blue-9);
+  --color-info-11: var(--blue-11);
+  --color-acento-3: var(--indigo-3);
+  --color-acento-6: var(--indigo-6);
+  --color-acento-9: var(--indigo-9);
+  --color-acento-11: var(--indigo-11);
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --text-*: initial;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 20px;
+  --text-base: 14px;
+  --text-base--line-height: 20px;
+  --text-lg: 16px;
+  --text-lg--line-height: 24px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --radius-*: initial;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
+
+  --shadow-*: initial;
+  --shadow-overlay: var(--sombra-overlay);
+
+  --container-page: 1000px;
+  --container-wide: 1600px;
+  --container-form: 640px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media print {
+  .nao-imprimir {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+  }
 }

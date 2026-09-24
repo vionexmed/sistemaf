@@ -17,6 +17,9 @@ export type RegiaoQueixa = {
   lados: LadoCorpo[];
   primeiraData: string;
   ultimaData: string;
+  /** intervalo só dos atendimentos (para "9 atendimentos em 10 semanas") */
+  primeiroAtendimento: string | null;
+  ultimoAtendimento: string | null;
 };
 
 function ladosDaLesao(lado: string): LadoCorpo[] {
@@ -38,6 +41,7 @@ export function mapaDeQueixas(
     const at = atendimentos.filter((a) => a.local === regiao);
     const ls = [...lesoes.filter((l) => l.regiao === regiao)].sort((a, b) => (a.dia < b.dia ? 1 : -1));
     const datas = [...at.map((a) => a.data), ...ls.map((l) => l.dia)].sort();
+    const datasAt = at.map((a) => a.data).sort();
     return {
       regiao,
       atendimentos: at.length,
@@ -47,6 +51,8 @@ export function mapaDeQueixas(
       lados: ls.length > 0 ? ladosDaLesao(ls[0].lado) : ["D", "E"],
       primeiraData: datas[0],
       ultimaData: datas[datas.length - 1],
+      primeiroAtendimento: datasAt[0] ?? null,
+      ultimoAtendimento: datasAt[datasAt.length - 1] ?? null,
     };
   });
 
@@ -58,8 +64,8 @@ export function mapaDeQueixas(
 /** "9 atendimentos em 10 semanas, 2 lesões registradas aqui" */
 export function resumoDaRegiao(r: RegiaoQueixa): string {
   const partes: string[] = [];
-  if (r.atendimentos > 0) {
-    const semanas = Math.max(1, Math.ceil((diferencaDias(r.primeiraData, r.ultimaData) + 1) / 7));
+  if (r.primeiroAtendimento && r.ultimoAtendimento) {
+    const semanas = Math.max(1, Math.ceil((diferencaDias(r.primeiroAtendimento, r.ultimoAtendimento) + 1) / 7));
     partes.push(
       `${r.atendimentos} ${r.atendimentos === 1 ? "atendimento" : "atendimentos"} em ${semanas} ${semanas === 1 ? "semana" : "semanas"}`,
     );

@@ -151,13 +151,13 @@ Escalas de 12 passos do Radix Colors (pacote `@radix-ui/colors`). Papel fixo por
 | Papel | Escala | Onde aparece |
 |---|---|---|
 | Neutra | `slate` | fundo do app (2), cards (branco/1), bordas (6), texto (11–12) |
-| Acento | `blue` (as cores do clube são azul e branco) | botão primário, links, foco, aba ativa, seleção |
+| Acento | `indigo` (azul profundo, conversa com o azul e branco do clube; o `blue` 9 do Radix não passa AA com texto branco) | botão primário, links, foco, aba ativa, seleção |
 | Sucesso | `green` | toast de sucesso, status **Liberado** |
 | Atenção | `amber` | status **Queixa pós-treino**, banner de aviso |
 | Crítico | `red` | erro, ação destrutiva, status **Afastado** |
 | Informativo | `blue` | status **Em tratamento**, banner informativo |
 
-- Tema claro por padrão; **modo escuro** pelos mesmos tokens (`slateDark`, `blueDark`…), alternado no menu do usuário. Nenhuma cor avulsa para o escuro.
+- Tema claro por padrão; **modo escuro** pelos mesmos tokens (`slateDark`, `indigoDark`…), alternado no menu do usuário. Nenhuma cor avulsa para o escuro.
 - Contraste AA (4,5:1) obrigatório em texto de tabela e badges.
 - **Gráficos:** paleta categórica de no máximo 6 cores dessaturadas (`--chart-1` a `--chart-6`); nunca a paleta semântica em gráficos.
 

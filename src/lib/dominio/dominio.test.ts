@@ -235,7 +235,7 @@ describe("ficha", () => {
       ["joelho", 2, 1, true, "E"],
       ["posterior_coxa", 1, 1, false, "D"],
     ]);
-    expect(resumoDaRegiao(mapa[0])).toBe("2 atendimentos em 2 semanas, 1 lesão registrada aqui");
+    expect(resumoDaRegiao(mapa[0])).toBe("2 atendimentos em 1 semana, 1 lesão registrada aqui");
   });
 
   it("sem lesão na região o brilho vai nos dois lados", () => {

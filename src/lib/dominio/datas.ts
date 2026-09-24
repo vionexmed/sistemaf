@@ -123,3 +123,19 @@ export function letraDiaSemana(iso: string): string {
 export function ehDataISO(valor: unknown): valor is string {
   return typeof valor === "string" && /^\d{4}-\d{2}-\d{2}$/.test(valor) && !Number.isNaN(paraUTC(valor));
 }
+
+/** "agora", "há 5 min", "há 2 h", "há 3 dias" */
+export function haQuanto(instante: Date, agora: Date = new Date()): string {
+  const min = Math.floor((agora.getTime() - instante.getTime()) / 60_000);
+  if (min < 1) return "agora";
+  if (min < 60) return `há ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `há ${h} h`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? "há 1 dia" : `há ${d} dias`;
+}
+
+/** 23/09/2026 às 09h12 */
+export function fmtInstante(instante: Date): string {
+  return `${fmtData(hojeISO(instante))} às ${horaMinuto(instante)}`;
+}

@@ -25,7 +25,7 @@ O prompt original descrevia o visual do MVP antigo (azul-marinho, amarelo, Barlo
 |---|---|---|
 | App | Next.js 16 (App Router, Server Components, Server Actions), React 19, TypeScript | telas renderizadas no servidor já com os números calculados; gravação sem API separada |
 | UI | Tailwind CSS v4 + componentes shadcn/ui em `src/components/ui` (Radix UI por baixo), `cmdk` para a barra de comando, `sonner` para toasts | design system único exigido pelos presets |
-| Cor | `@radix-ui/colors` (slate, blue, green, amber, red) | escalas de 12 passos com papel fixo e modo escuro |
+| Cor | `@radix-ui/colors` (slate, indigo, blue, green, amber, red) | escalas de 12 passos com papel fixo e modo escuro |
 | Ícones | `lucide-react` | |
 | Banco | PostgreSQL via Drizzle ORM. Desenvolvimento: PGlite (Postgres embutido em `.data/pglite`). Produção: `DATABASE_URL` | mesmo dialeto nos dois ambientes; migrações versionadas em `drizzle/` |
 | Validação | `zod` nas Server Actions | |
@@ -364,7 +364,7 @@ Onde o prompt original estava incompleto, contraditório ou em conflito com os p
 
 **Design**
 
-1. **Visual do MVP antigo descartado.** Cores, fontes e medidas do prompt eram do MVP; o design vem de `docs/design.md`. O acento é o azul (`blue` do Radix), que conversa com o azul e branco do clube sem ser decoração.
+1. **Visual do MVP antigo descartado.** Cores, fontes e medidas do prompt eram do MVP; o design vem de `docs/design.md`. O acento é o `indigo` do Radix (azul profundo, conversa com o azul e branco do clube e passa AA com texto branco).
 2. **Dois presets.** Preset 3 é a base (registros, tabelas, formulários); do Preset 1 entram barra de comando, atalhos, motion e modo escuro. Conflitos resolvidos em `docs/design.md`.
 3. **Jogadores em tabela, não em cards.** O Preset 3 define índice = tabela com visões e busca; a foto continua na linha para achar pelo rosto.
 4. **"Registrar atendimento" só na barra superior** conflitava com "uma ação primária por tela" (Jogadores e Lesões têm a própria). Fica como primária em Atendimentos e na ficha, e no atalho `N`/barra de comando nas demais.
