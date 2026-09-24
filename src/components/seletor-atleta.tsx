@@ -25,11 +25,9 @@ export function SeletorAtleta({
   invalido?: boolean;
   autoAbrir?: boolean;
 }) {
-  const [aberto, setAberto] = React.useState(false);
+  const [aberto, setAberto] = React.useState(!!autoAbrir);
   const atual = atletas.find((a) => a.id === valor);
-  React.useEffect(() => {
-    if (autoAbrir) setAberto(true);
-  }, [autoAbrir]);
+  const idLista = React.useId();
   return (
     <Popover open={aberto} onOpenChange={setAberto}>
       <PopoverTrigger asChild>
@@ -38,6 +36,7 @@ export function SeletorAtleta({
           type="button"
           role="combobox"
           aria-expanded={aberto}
+          aria-controls={idLista}
           aria-invalid={invalido || undefined}
           className={cn(
             "flex h-9 w-full max-w-md items-center gap-2 rounded-md border border-input bg-surface px-3 text-left text-base hover:bg-hover",
@@ -56,7 +55,7 @@ export function SeletorAtleta({
           <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-72 p-0">
+      <PopoverContent id={idLista} className="w-[var(--radix-popover-trigger-width)] min-w-72 p-0">
         <Command filter={(v, busca) => (v.toLowerCase().includes(busca.toLowerCase().trim()) ? 1 : 0)}>
           <CommandInput placeholder="Nome ou número da camisa" />
           <CommandList>

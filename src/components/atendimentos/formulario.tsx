@@ -65,25 +65,21 @@ export function FormularioAtendimento({
     !editando && inicial.atletaId ? comUltimo(inicial, contexto[inicial.atletaId]) : inicial,
   );
   const depois = React.useRef<"lista" | "outro">("lista");
-  const [estado, acao, pendente] = React.useActionState<EstadoAtendimento, FormData>(salvarAtendimento, {});
-  const ultimoEnvio = React.useRef<number | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (!estado.envio || estado.envio === ultimoEnvio.current) return;
-    ultimoEnvio.current = estado.envio;
-    if (!estado.ok) return;
+  const [estado, acao, pendente] = React.useActionState<EstadoAtendimento, FormData>(async (anterior, form) => {
+    const r = await salvarAtendimento(anterior, form);
+    if (!r.ok) return r;
     if (editando) {
       toast.success("Atendimento atualizado.");
-      router.push(`/jogadores/${v.atletaId}?aba=atendimentos`);
-    } else if (depois.current === "outro") {
-      toast.success("Atendimento salvo. Já aparece na ficha e em Atendimentos de hoje.");
-      setV((atual) => ({ ...atual, atletaId: null, hd: null, local: null, objetivo: null, status: null, evolucao: "" }));
-      router.refresh();
+      router.push(`/jogadores/${form.get("atletaId")}?aba=atendimentos`);
     } else {
       toast.success("Atendimento salvo. Já aparece na ficha e em Atendimentos de hoje.");
-      router.push("/atendimentos");
+      if (depois.current === "outro") {
+        setV((atual) => ({ ...atual, atletaId: null, hd: null, local: null, objetivo: null, status: null, evolucao: "" }));
+        router.refresh();
+      } else router.push("/atendimentos");
     }
-  }, [estado, editando, router, v.atletaId]);
+    return r;
+  }, {});
 
   const set = <K extends keyof ValoresAtendimento>(k: K, valor: ValoresAtendimento[K]) => setV((atual) => ({ ...atual, [k]: valor }));
   const escolherAtleta = (id: number) => setV((atual) => (editando ? { ...atual, atletaId: id } : comUltimo({ ...atual, atletaId: id }, contexto[id])));

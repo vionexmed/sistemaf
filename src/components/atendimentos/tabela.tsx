@@ -50,14 +50,11 @@ export function TabelaAtendimentos({
   exportarHref: string;
 }) {
   const router = useRouter();
-  const [selecionadas, setSelecionadas] = React.useState<Set<number>>(new Set());
+  const [marcadas, setSelecionadas] = React.useState<Set<number>>(new Set());
   const [excluir, setExcluir] = React.useState<LinhaAtendimento[] | null>(null);
   const [pendente, iniciar] = React.useTransition();
-
-  React.useEffect(() => {
-    const ids = new Set(linhas.map((l) => l.id));
-    setSelecionadas((s) => new Set([...s].filter((id) => ids.has(id))));
-  }, [linhas]);
+  // Só vale a seleção das linhas que ainda estão na tela (filtro, página ou atualização automática).
+  const selecionadas = React.useMemo(() => new Set(linhas.filter((l) => marcadas.has(l.id)).map((l) => l.id)), [linhas, marcadas]);
 
   const todas = linhas.length > 0 && selecionadas.size === linhas.length;
   const algumas = selecionadas.size > 0 && !todas;

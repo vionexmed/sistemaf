@@ -75,13 +75,13 @@ export function TabelaLesoes({ linhas, podeEditar, mostrarAtleta = true }: { lin
               )}
               {mostrarAtleta && <TableCell className="text-muted-foreground">{l.posicao}</TableCell>}
               <TableCell className="tabular">{l.dia}</TableCell>
-              <TableCell title={l.lesao}>{l.lesao}</TableCell>
+              <TableCell className="max-w-48" title={l.lesao}>{l.lesao}</TableCell>
               <TableCell>{l.local}</TableCell>
               <TableCell>{l.reincidencia ? <Badge tom="aviso">Sim</Badge> : <span className="text-muted-foreground">Não</span>}</TableCell>
               <TableCell numero>{l.emAberto ? <Badge tom="erro" ponto>Em aberto</Badge> : l.afastamento}</TableCell>
-              <TableCell className="tabular">
+              <TableCell className="tabular" title={l.afastadoHoje && !l.emAberto ? "Retorno previsto" : undefined}>
                 {l.retorno}
-                {l.afastadoHoje && !l.emAberto && <span className="ml-1 text-xs text-muted-foreground">(previsto)</span>}
+                {l.afastadoHoje && !l.emAberto && <span className="text-muted-foreground">*</span>}
               </TableCell>
               <TableCell>{l.campeonato}</TableCell>
               <TableCell className="text-muted-foreground">{l.periodo}</TableCell>

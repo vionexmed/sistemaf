@@ -56,8 +56,8 @@ export async function salvarLesao(_: EstadoLesao, form: FormData): Promise<Estad
     for (const e of lido.error.issues) erros[e.path[0] as Campos] ??= e.message;
     return { erros, envio };
   }
-  const { emAberto: _aberto, ...dados } = lido.data;
-  if (!emAberto && dados.diasAfastamento == null) {
+  const { emAberto: afastamentoEmAberto, ...dados } = lido.data;
+  if (!afastamentoEmAberto && dados.diasAfastamento == null) {
     return { erros: { diasAfastamento: "Informe os dias de afastamento ou marque “Em aberto”" }, envio };
   }
   const hoje = hojeISO();

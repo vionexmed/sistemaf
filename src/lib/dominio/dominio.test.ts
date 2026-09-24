@@ -257,3 +257,18 @@ describe("ficha", () => {
     ]);
   });
 });
+
+import { resumoRelatorio } from "./relatorio";
+
+describe("resumo do relatório", () => {
+  it("escreve em linguagem simples a partir dos números", () => {
+    expect(
+      resumoRelatorio({
+        apelido: "Rafael", intervalo: "24 ago a 23 set de 2026", atendimentos: 12, diasComAtendimento: 10, diasEmTratamento: 8,
+        diasAfastado: 0, principalQueixa: { hd: "Tendinopatia", naRegiao: "no joelho" }, principalObjetivo: "Força muscular", lesoesNoPeriodo: 0, status: "em_tratamento",
+      }),
+    ).toBe(
+      "No período de 24 ago a 23 set de 2026, Rafael foi atendido 12 vezes, em 10 dias diferentes. A principal queixa foi tendinopatia no joelho, e o trabalho teve foco em força muscular. Esteve em tratamento em 8 dias. Não teve lesão nem dias afastado no período. Hoje o status é: em tratamento.",
+    );
+  });
+});

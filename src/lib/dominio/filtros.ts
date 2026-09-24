@@ -31,3 +31,27 @@ export function filtrarAtendimentos<T extends Record<"periodo" | "status" | "hd"
     }),
   );
 }
+
+export const VISOES_LESAO = [
+  { valor: "todas", rotulo: "Todas" },
+  { valor: "abertas", rotulo: "Em aberto" },
+  { valor: "encerradas", rotulo: "Encerradas" },
+] as const;
+export type VisaoLesao = (typeof VISOES_LESAO)[number]["valor"];
+
+type FiltrosLesao = Partial<Record<"campeonato" | "periodo" | "tipo" | "regiao", string[]>>;
+
+export function filtrarLesoes<T extends { diasAfastamento: number | null; campeonato: string; periodo: string; tipo: string; regiao: string }>(
+  lesoes: readonly T[],
+  visao: VisaoLesao,
+  filtros: FiltrosLesao,
+): T[] {
+  return lesoes.filter((l) => {
+    if (visao === "abertas" && l.diasAfastamento != null) return false;
+    if (visao === "encerradas" && l.diasAfastamento == null) return false;
+    return (Object.keys(filtros) as (keyof FiltrosLesao)[]).every((k) => {
+      const v = filtros[k];
+      return !v || v.length === 0 || v.includes(l[k]);
+    });
+  });
+}

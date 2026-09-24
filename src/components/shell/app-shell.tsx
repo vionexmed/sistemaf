@@ -77,6 +77,23 @@ const NOMES_SEGMENTO: Record<string, string> = {
   usuarios: "Usuários",
 };
 
+function assinarMenu(aviso: () => void) {
+  window.addEventListener("menu-recolhido", aviso);
+  window.addEventListener("storage", aviso);
+  return () => {
+    window.removeEventListener("menu-recolhido", aviso);
+    window.removeEventListener("storage", aviso);
+  };
+}
+
+function lerMenuRecolhido() {
+  try {
+    return localStorage.getItem("menu-recolhido") === "1";
+  } catch {
+    return false;
+  }
+}
+
 function useAtalhos(acoes: Record<string, () => void>, abrirBusca: () => void) {
   const prefixoG = React.useRef<number | null>(null);
   React.useEffect(() => {
@@ -137,24 +154,18 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [recolhido, setRecolhido] = React.useState(false);
-  const [menuMovel, setMenuMovel] = React.useState(false);
+  const recolhido = React.useSyncExternalStore(assinarMenu, lerMenuRecolhido, () => false);
+  // O menu do celular fecha sozinho ao navegar: ele só fica aberto na rota em que foi aberto.
+  const [menuAbertoEm, setMenuAbertoEm] = React.useState<string | null>(null);
+  const menuMovel = menuAbertoEm === pathname;
+  const setMenuMovel = (aberto: boolean) => setMenuAbertoEm(aberto ? pathname : null);
   const [buscaAberta, setBuscaAberta] = React.useState(false);
 
-  React.useEffect(() => {
-    try {
-      setRecolhido(localStorage.getItem("menu-recolhido") === "1");
-    } catch {}
-  }, []);
-  React.useEffect(() => setMenuMovel(false), [pathname]);
-
   const alternarMenu = () => {
-    setRecolhido((r) => {
-      try {
-        localStorage.setItem("menu-recolhido", r ? "0" : "1");
-      } catch {}
-      return !r;
-    });
+    try {
+      localStorage.setItem("menu-recolhido", recolhido ? "0" : "1");
+      window.dispatchEvent(new Event("menu-recolhido"));
+    } catch {}
   };
 
   // Na ficha, "Registrar atendimento" já abre com o jogador escolhido.

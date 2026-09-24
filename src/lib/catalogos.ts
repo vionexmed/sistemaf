@@ -165,3 +165,12 @@ export const TEMPORADA = {
   inicio: "2026-01-02",
   fimPreTemporada: "2026-01-09",
 } as const;
+
+// Quem assina o relatório do jogador. [confirmar nome e CREFITO]
+export const ASSINATURA = { nome: "[NOME DO FISIOTERAPEUTA]", crefito: "[NÚMERO]" } as const;
+
+/** "no joelho", "na lombar" */
+export function naRegiao(regiao: string): string {
+  const femininas = ["panturrilha", "lombar"];
+  return `${femininas.includes(regiao) ? "na" : "no"} ${rotulo(REGIOES, regiao).toLowerCase()}`;
+}

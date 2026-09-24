@@ -1,7 +1,7 @@
 import "server-only";
 import type { Atleta, Lesao } from "@/db/schema";
 import { CAMPEONATOS, LADOS, PERIODOS_TEMPORADA, POSICOES, REGIOES, TIPOS_LESAO, rotulo } from "@/lib/catalogos";
-import { fmtDiaMes, fmtData } from "@/lib/dominio/datas";
+import { fmtDiaMes } from "@/lib/dominio/datas";
 import { diaRetorno, lesaoAfasta, lesaoEmAberto } from "@/lib/dominio/status";
 import type { LinhaLesao } from "@/components/lesoes/tabela";
 
@@ -22,7 +22,7 @@ export function linhaLesao(l: Lesao, atleta: Atleta, hoje: string, verSaude: boo
     camisa: atleta.camisa,
     foto: atleta.foto ? `/api/arquivos/${atleta.foto}` : null,
     posicao: rotulo(POSICOES, atleta.posicao),
-    dia: fmtData(l.dia),
+    dia: `${fmtDiaMes(l.dia)}/${l.dia.slice(2, 4)}`,
     lesao: verSaude && l.estrutura ? `${tipo} · ${l.estrutura}` : tipo,
     local: localDaLesao(l.regiao, l.lado),
     reincidencia: l.reincidencia,

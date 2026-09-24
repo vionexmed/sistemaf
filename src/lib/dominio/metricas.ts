@@ -204,3 +204,9 @@ export function diasEmTratamento(atendimentos: readonly Pick<AtendimentoMin, "da
 export function periodoTemporadaDaData(dia: string): "pre_temporada" | "temporada" {
   return dia >= TEMPORADA.inicio && dia <= TEMPORADA.fimPreTemporada ? "pre_temporada" : "temporada";
 }
+
+/** Campeonato sugerido pela data (o primeiro cujas datas cobrem o dia). */
+export function campeonatoDaData(dia: string): Campeonato | null {
+  const c = CAMPEONATOS.find((x) => x.inicio && x.fim && dia >= x.inicio && dia <= x.fim);
+  return c ? c.valor : null;
+}

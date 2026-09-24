@@ -25,18 +25,15 @@ export function Documentos({ atletaId, documentos, podeEditar }: { atletaId: num
   const [pendenteExcluir, iniciar] = React.useTransition();
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const [estado, acao, enviando] = React.useActionState<EstadoEnvio, FormData>(enviarDocumento, {});
-  const ultimo = React.useRef<number | undefined>(undefined);
-
-  React.useEffect(() => {
-    if (!estado.envio || estado.envio === ultimo.current) return;
-    ultimo.current = estado.envio;
-    if (estado.ok) {
+  const [, acao, enviando] = React.useActionState<EstadoEnvio, FormData>(async (anterior, form) => {
+    const r = await enviarDocumento(anterior, form);
+    if (r.ok) {
       toast.success("Arquivo enviado para a pasta do jogador.");
-      formRef.current?.reset();
+      if (inputRef.current) inputRef.current.value = "";
       router.refresh();
-    } else if (estado.erro) toast.error(estado.erro);
-  }, [estado, router]);
+    } else if (r.erro) toast.error(r.erro);
+    return r;
+  }, {});
 
   const lista = pasta ? documentos.filter((d) => d.tipo === pasta) : documentos;
   const rotuloTipo = (t: string) => TIPOS_DOCUMENTO.find((x) => x.valor === t)?.rotulo ?? t;

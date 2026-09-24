@@ -8,14 +8,14 @@ import { EstadoVazio, SemResultados } from "@/components/estados";
 import { BarraDeFiltros, Visoes } from "@/components/indice/filtros";
 import { TabelaJogadores } from "@/components/jogadores/tabela";
 import { GRUPO_DA_POSICAO, GRUPOS_POSICAO, POSICOES, rotulo, type Posicao } from "@/lib/catalogos";
-import { elencoComStatus, hoje } from "@/lib/consultas";
+import { elencoComStatus, hoje, listarAtletas, statusHoje } from "@/lib/consultas";
 import { idade } from "@/lib/dominio/datas";
 import { normalizar, texto, umDe, type Params } from "@/lib/parametros";
 import { permissoes, usuarioAtual } from "@/lib/sessao";
 
 export const metadata: Metadata = { title: "Jogadores" };
 
-const VISOES = [{ valor: "todos", rotulo: "Todos" }, ...GRUPOS_POSICAO, { valor: "afastados", rotulo: "Afastados" }] as const;
+const VISOES = [{ valor: "todos", rotulo: "Todos" }, ...GRUPOS_POSICAO, { valor: "afastados", rotulo: "Afastados" }, { valor: "inativos", rotulo: "Fora do elenco" }] as const;
 const ORDEM_STATUS = { afastado: 0, em_tratamento: 1, queixa_pos_treino: 2, liberado: 3 } as const;
 
 export default async function PaginaJogadores({ searchParams }: { searchParams: Promise<Params> }) {
@@ -26,8 +26,12 @@ export default async function PaginaJogadores({ searchParams }: { searchParams: 
   const busca = normalizar(texto(p, "q") ?? "");
   const ordem = texto(p, "ordem") ?? "camisa";
 
-  const linhas = elenco
-    .filter((a) => (visao === "todos" ? true : visao === "afastados" ? a.status === "afastado" : GRUPO_DA_POSICAO[a.posicao as Posicao] === visao))
+  const base =
+    visao === "inativos"
+      ? await Promise.all([listarAtletas(true), statusHoje()]).then(([todos, st]) => todos.filter((a) => !a.ativo).map((a) => ({ ...a, status: st.get(a.id) ?? "liberado" })))
+      : elenco;
+  const linhas = base
+    .filter((a) => (visao === "todos" || visao === "inativos" ? true : visao === "afastados" ? a.status === "afastado" : GRUPO_DA_POSICAO[a.posicao as Posicao] === visao))
     .filter((a) => !busca || normalizar(`${a.nome} ${a.apelido} ${a.camisa}`).includes(busca))
     .map((a) => ({
       id: a.id,
@@ -74,7 +78,7 @@ export default async function PaginaJogadores({ searchParams }: { searchParams: 
           {elenco.length === 0 ? (
             <EstadoVazio icone={Users} frase="Nenhum jogador cadastrado ainda." acao={pode.editar ? { rotulo: "Adicionar o primeiro jogador", href: "/jogadores/novo" } : undefined} />
           ) : linhas.length === 0 ? (
-            <SemResultados frase={visao === "afastados" && !busca ? "Nenhum jogador afastado hoje." : "Nenhum jogador encontrado."} limparHref="/jogadores" />
+            <SemResultados frase={busca ? "Nenhum jogador encontrado." : visao === "afastados" ? "Nenhum jogador afastado hoje." : visao === "inativos" ? "Nenhum jogador fora do elenco." : "Nenhum jogador nesta posição."} limparHref="/jogadores" />
           ) : (
             <TabelaJogadores linhas={linhas} podeEditar={pode.editar} />
           )}

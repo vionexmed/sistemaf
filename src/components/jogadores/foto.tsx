@@ -11,16 +11,14 @@ import { trocarFoto, type EstadoEnvio } from "@/lib/acoes/arquivos";
 export function FotoJogador({ atletaId, nome, foto, podeEditar }: { atletaId: number; nome: string; foto: string | null; podeEditar: boolean }) {
   const router = useRouter();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const [estado, acao, pendente] = React.useActionState<EstadoEnvio, FormData>(trocarFoto, {});
-  const ultimo = React.useRef<number | undefined>(undefined);
-  React.useEffect(() => {
-    if (!estado.envio || estado.envio === ultimo.current) return;
-    ultimo.current = estado.envio;
-    if (estado.ok) {
+  const [, acao, pendente] = React.useActionState<EstadoEnvio, FormData>(async (anterior, form) => {
+    const r = await trocarFoto(anterior, form);
+    if (r.ok) {
       toast.success("Foto atualizada.");
       router.refresh();
-    } else if (estado.erro) toast.error(estado.erro);
-  }, [estado, router]);
+    } else if (r.erro) toast.error(r.erro);
+    return r;
+  }, {});
 
   if (!podeEditar) return <Avatar nome={nome} foto={foto} tamanho={48} />;
   return (
